@@ -10,7 +10,7 @@ Es fácil perder la noción del tiempo mientras se está programando y encadenar
 
 Un personaje (mascota) que vive anclado en la esquina inferior derecha de la pantalla, siempre visible por encima de cualquier otra ventana. Mientras el temporizador corre, el usuario puede ver su estado de un vistazo. Cuando se cumplen los 20 minutos, el personaje empieza a mostrar señales de impaciencia y, si se ignora, termina bloqueando la pantalla por completo —incluyendo el teclado— hasta que el usuario decide conscientemente descansar o pedir una prórroga.
 
-La clave del diseño es que **la única vía de salida del bloqueo es una decisión activa del usuario**, y que el propio personaje se encarga de reactivarse solo tras el descanso, sin depender de que el usuario se acuerde de rearmarlo.
+Al elegir descansar, el personaje duerme y bloquea el teclado durante 40 segundos. Al finalizar, pasa a un estado de espera activa aguardando un clic del usuario para reanudar el ciclo de trabajo.
 
 ## Objetivo del proyecto
 
@@ -22,21 +22,24 @@ Proyecto personal para uso propio, centrado en resolver un problema real de háb
 
 | Estado | Descripción |
 |---|---|
-| **Dormido (inicial)** | Personaje inactivo. Estado de reposo antes de arrancar o tras desactivar manualmente. |
-| **Corriendo** | Temporizador activo, cuenta atrás desde 20:00. |
-| **Pausado** | Cuenta congelada, contexto conservado. Se muestra un icono de pausa en la cara del personaje. Solo se puede pausar durante *Corriendo* o *Avisando*, nunca durante un bloqueo. |
-| **Avisando** | Fase de 1 minuto (20:00–21:00) tras agotarse el tiempo. El personaje muestra 2 avisos con líneas de voz, con enfado creciente. Se puede pausar (para emergencias). |
-| **Bloqueado (1ª vez)** | Pantalla bloqueada y teclado inhabilitado. Dos opciones: **"¡5 minutos más!"** (concede una única prórroga) o **"Descansar"**. No se puede pausar ni cerrar. |
-| **Bloqueado (2ª vez)** | Se llega aquí solo si ya se usó la prórroga y el tiempo extendido (5 min) también se agota. Líneas de voz más exigentes. Solo queda la opción **"Descansar"**, sin prórroga disponible. |
-| **Durmiendo (post-descanso)** | Tras elegir "Descansar", el personaje duerme exactamente 40 segundos. Al despertar, suelta una línea de voz y reinicia el ciclo completo automáticamente (vuelta a *Corriendo* con 20:00 y la prórroga reseteada). |
-| **Desactivado** | El usuario apaga el personaje manualmente (p. ej. cuando deja de programar). Vuelve a *Dormido*, temporizador a 0, sin progreso guardado. |
+| **Disabled** | Personaje completamente inactivo. Estado de reposo tras desactivar manualmente. |
+| **Idle** | Personaje en reposo inicial, esperando el primer clic del usuario para arrancar el ciclo de trabajo. |
+| **Awaken** | Temporizador activo, cuenta atrás en progreso (20:00 en ciclo normal o 5:00 en prórroga). |
+| **Paused** | Cuenta congelada, contexto conservado. Solo se puede pausar durante *Awaken*, *Warning* o *SeriousWarning*. |
+| **Warning** | Fase de 1 minuto (20:00–21:00) tras agotarse el tiempo inicial. Muestra avisos y líneas de queja leves. Se puede pausar. |
+| **SeriousWarning** | Fase de 1 minuto tras agotarse la prórroga de 5 minutos. Avisos e impaciencia más severos antes del bloqueo definitivo. Se puede pausar. |
+| **Blocked1** | Primer bloqueo: pantalla y teclado inhabilitados. Dos opciones disponibles: **"¡5 minutos más!"** (prórroga única) o **"Descansar"**. No se puede pausar ni cerrar. |
+| **Blocked2** | Segundo bloqueo: alcanzable tras agotar la prórroga y el minuto de *SeriousWarning*. Solo queda la opción **"Descansar"**. No se puede pausar ni cerrar. |
+| **Sleeping** | Fase de descanso activo durante exactamente 40 segundos tras pulsar "Descansar". El teclado continúa bloqueado. |
+| **Waiting** | Fin del descanso. El personaje despierta y espera un clic del usuario para iniciar un nuevo ciclo (vuelta a *Awaken* con 20:00 y prórroga reseteada).|
 
 ### Reglas clave
 
 - La prórroga de "5 minutos más" solo puede usarse **una vez** por ciclo completo.
-- Al agotarse los 5 minutos extra, se pasa directamente a **Bloqueado (2ª vez)** sin repetir la fase de *Avisando*.
-- El descanso tras "Descansar" es de **40 segundos** fijos y se reactiva solo, sin intervención del usuario.
-- Durante un bloqueo (1ª o 2ª vez) no se puede pausar, reiniciar ni cerrar la aplicación de forma normal; solo se puede interactuar mediante los botones del propio diálogo de bloqueo, usando el ratón.
+- Al agotarse la prórroga de 5 minutos, se pasa a **SeriousWarning** (1 min) y posteriormente a **Blocked2** sin opción a más tiempo extra.
+- El descanso en **Sleeping** es de **40 segundos** fijos con teclado suprimido.
+- Al terminar los 40 segundos, la app pasa a **Waiting** y no reanuda el cronómetro automáticamente; requiere un clic del usuario para no consumir tiempo si el puesto está vacío.
+- Durante **Blocked1**, **Blocked2** y **Sleeping** no se puede pausar, reiniciar ni desactivar la aplicación; la interacción queda restringida a los botones de la interfaz mediante ratón.
 
 ## Estructura del proyecto
 
