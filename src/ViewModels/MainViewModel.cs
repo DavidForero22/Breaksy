@@ -84,7 +84,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         // Logs
         var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        Console.WriteLine($"[{timestamp}] [Status change] {e.OldState} -> {e.NewState}");
+        Console.WriteLine($"[{timestamp}] [Status changed] {e.OldState} -> {e.NewState}");
 
         UpdateVisuals(e.NewState);
         OnTick(null, _stateMachine.RemainingTime);

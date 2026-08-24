@@ -1,0 +1,175 @@
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Threading;
+using Breaksy.Models;
+
+namespace Breaksy.Services;
+
+/// <summary>
+/// Gestiona la reproducción de audios en la carpeta assets/voices.
+/// Reacciona a los eventos de la máquina de estados y a los ticks de tiempo.
+/// </summary>
+public class VoiceService : IDisposable
+{
+    private readonly BreaksyStateMachine _stateMachine;
+    private readonly MediaPlayer _mediaPlayer;
+    private readonly DispatcherTimer _blockedTimer;
+    private readonly string _baseVoicePath;
+    private readonly Random _random;
+
+    private int _blockedSeconds = 0;
+
+    public bool IsMuted { get; set; } = false;
+
+    public VoiceService(BreaksyStateMachine stateMachine)
+    {
+        _stateMachine = stateMachine;
+        _mediaPlayer = new MediaPlayer();
+        _random = new Random();
+
+        // La ruta asume que la carpeta 'assets' está junto al ejecutable. 
+        // Si estás ejecutando desde VS/VSCode, asegúrate de que los archivos se copian al output (Copy to Output Directory).
+        _baseVoicePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "voices");
+
+        // Temporizador secundario exclusivo para contar el tiempo DENTRO de los bloqueos
+        _blockedTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _blockedTimer.Tick += OnBlockedTimerTick;
+
+        _stateMachine.StateChanged += OnStateChanged;
+        _stateMachine.Tick += OnStateMachineTick;
+    }
+
+    private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
+    {
+        // Manejar temporizador de bloqueos
+        if (e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2)
+        {
+            _blockedSeconds = 0;
+            _blockedTimer.Start();
+        }
+        else
+        {
+            _blockedTimer.Stop();
+        }
+
+        // Disparar audios de transición
+        switch (e.NewState)
+        {
+            case BreaksyState.Awaken:
+                HandleAwakenVoices(e.OldState);
+                break;
+            case BreaksyState.Warning:
+                PlayRandomVoice(@"warning\step_1");
+                break;
+            case BreaksyState.SeriousWarning:
+                PlayRandomVoice(@"serious_warning\step_1");
+                break;
+            case BreaksyState.Blocked1:
+                PlayRandomVoice(@"blocked_1\enter");
+                break;
+            case BreaksyState.Blocked2:
+                PlayRandomVoice(@"blocked_2\enter");
+                break;
+        }
+    }
+
+    private void HandleAwakenVoices(BreaksyState oldState)
+    {
+        switch (oldState)
+        {
+            case BreaksyState.Idle: PlayRandomVoice(@"awaken\from_idle"); break;
+            case BreaksyState.Disabled: PlayRandomVoice(@"awaken\from_disabled"); break;
+            case BreaksyState.Blocked1: PlayRandomVoice(@"awaken\from_blocked1"); break;
+            case BreaksyState.Waiting: PlayRandomVoice(@"awaken\from_waiting"); break;
+        }
+    }
+
+    private void OnStateMachineTick(object? sender, TimeSpan remaining)
+    {
+        // Warning y SeriousWarning duran 1 minuto (60s).
+        // El tiempo remaining cuenta hacia atrás.
+        double secondsRemaining = remaining.TotalSeconds;
+
+        if (_stateMachine.CurrentState == BreaksyState.Warning)
+        {
+            if (secondsRemaining == 40) PlayRandomVoice(@"warning\step_2");
+            if (secondsRemaining == 20) PlayRandomVoice(@"warning\step_3");
+        }
+        else if (_stateMachine.CurrentState == BreaksyState.SeriousWarning)
+        {
+            if (secondsRemaining == 40) PlayRandomVoice(@"serious_warning\step_2");
+            if (secondsRemaining == 20) PlayRandomVoice(@"serious_warning\step_3");
+        }
+    }
+
+    private void OnBlockedTimerTick(object? sender, EventArgs e)
+    {
+        _blockedSeconds++;
+
+        if (_stateMachine.CurrentState == BreaksyState.Blocked1)
+        {
+            if (_blockedSeconds == 60) PlayRandomVoice(@"blocked_1\1_min");
+            if (_blockedSeconds == 300) PlayRandomVoice(@"blocked_1\5_min");
+        }
+        else if (_stateMachine.CurrentState == BreaksyState.Blocked2)
+        {
+            if (_blockedSeconds == 60) PlayRandomVoice(@"blocked_2\1_min");
+            if (_blockedSeconds == 300) PlayRandomVoice(@"blocked_2\5_min");
+        }
+    }
+
+    private void PlayRandomVoice(string subCategoryPath)
+    {
+        if (IsMuted) return;
+
+        var fullPath = Path.Combine(_baseVoicePath, subCategoryPath);
+        string[] files = Array.Empty<string>();
+
+        // Intentar buscar en la carpeta específica del estado
+        if (Directory.Exists(fullPath))
+        {
+            files = Directory.GetFiles(fullPath, "*.*")
+                             .Where(f => f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                                         f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                             .ToArray();
+        }
+
+        // Lógica de Fallback si la carpeta no existe o está vacía
+        if (files.Length == 0)
+        {
+            Console.WriteLine($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
+            
+            var fallbackDir = Path.Combine(_baseVoicePath, "random");
+            if (Directory.Exists(fallbackDir))
+            {
+                files = Directory.GetFiles(fallbackDir, "*.*")
+                                 .Where(f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) || 
+                                              f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase))
+                                 .ToArray();
+            }
+
+            // Si no se encuentra el archivo de fallback específico, abortar
+            if (files.Length == 0)
+            {
+                Console.WriteLine("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/random/.");
+                return;
+            }
+        }
+
+        // Reproducir el archivo (ya sea el específico o el de fallback)
+        var randomFile = files[_random.Next(files.Length)];
+        Console.WriteLine($"[VoiceService] REPRODUCIENDO -> {Path.GetFileName(randomFile)}");
+
+        _mediaPlayer.Open(new Uri(randomFile));
+        _mediaPlayer.Play();
+    }
+
+    public void Dispose()
+    {
+        _stateMachine.StateChanged -= OnStateChanged;
+        _stateMachine.Tick -= OnStateMachineTick;
+        _blockedTimer.Tick -= OnBlockedTimerTick;
+        _blockedTimer.Stop();
+        _mediaPlayer.Close();
+    }
+}
