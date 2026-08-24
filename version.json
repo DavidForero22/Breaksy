@@ -1,0 +1,11 @@
+[
+    {
+        "version": 0.1,
+        "date": "07/24/2026",
+        "changes": [
+            "Basic system operation",
+            "Settings window with an option to mute sounds",
+            "WIP Interface"
+        ]
+    }
+]

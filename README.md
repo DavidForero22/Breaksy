@@ -79,4 +79,4 @@ Breaksy/
 
 ## Estado del proyecto
 
-Fase 0 en progreso: prueba de concepto del hook de teclado (detección, sin supresión todavía) y ventana WPF sin decoración.
+Fase 6 en progreso: realizar pruebas y verificar funcionamiento en un ciclo normal.

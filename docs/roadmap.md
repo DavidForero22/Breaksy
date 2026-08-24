@@ -70,10 +70,10 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 
 ## Fase 5 — Sistema de audio / líneas de voz
 
-- [ ] Seleccionar mecanismo de audio (`System.Speech.Synthesis` o reproducción de archivos en `assets/voces/`).
-- [ ] Servicio de audio en `Services/` para reproducir pistas/frases según el evento de estado.
-- [ ] Disparadores de audio: avisos en `Warning`, avisos críticos en `SeriousWarning`, entrada a `Blocked1`, entrada a `Blocked2` y mensaje de despertar en `Waiting`.
-- [ ] Placeholders de texto o pitidos de depuración para validar la sincronización temporal sin depender de assets finales.
+- [x] Seleccionar mecanismo de audio (`System.Speech.Synthesis` o reproducción de archivos en `assets/voces/`).
+- [x] Servicio de audio en `Services/` para reproducir pistas/frases según el evento de estado.
+- [x] Disparadores de audio: avisos en `Warning`, avisos críticos en `SeriousWarning`, entrada a `Blocked1`, entrada a `Blocked2` y mensaje de despertar en `Waiting`.
+- [x] Placeholders de texto o pitidos de depuración para validar la sincronización temporal sin depender de assets finales.
 
 ---
 
