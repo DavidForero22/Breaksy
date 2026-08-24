@@ -11,10 +11,10 @@ Cada fase asume que la anterior está terminada y probada manualmente. No hace f
 Objetivo: confirmar cuanto antes que las dos piezas más inciertas del proyecto son viables, antes de construir nada más encima.
 
 - [x] Proyecto .NET mínimo (WPF) que registre un hook de teclado de bajo nivel (`WH_KEYBOARD_LL` vía P/Invoke) y detecte pulsaciones (por consola).
-- [ ] El hook debe ser capaz de **suprimir** pulsaciones (no solo detectarlas).
+- [x] El hook debe ser capaz de **suprimir** pulsaciones (no solo detectarlas).
 - [x] Ventana WPF sin decoración, `Topmost = true`, que se mantenga por encima de otras ventanas incluso al hacer clic en otras apps.
-- [ ] Probar que esa ventana **no se puede cerrar** con Alt+F4 ni desde la barra de tareas mientras el hook está activo.
-- [ ] Documentar en `docs/` cualquier limitación encontrada (antivirus que marque el hook como sospechoso, necesidad de ejecutar como administrador, comportamiento en múltiples monitores, etc.).
+- [x] Probar que esa ventana **no se puede cerrar** con Alt+F4 ni desde la barra de tareas mientras el hook está activo.
+- [x] Documentar en `docs/` cualquier limitación encontrada (antivirus que marque el hook como sospechoso, necesidad de ejecutar como administrador, comportamiento en múltiples monitores, etc.).
 
 Si algo de esto falla o resulta muy inestable, es el momento de replantear el enfoque — mucho más barato ahora que con todo el resto del proyecto construido encima.
 

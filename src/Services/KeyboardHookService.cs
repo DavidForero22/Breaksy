@@ -6,11 +6,15 @@ namespace Breaksy.Services;
 
 /// <summary>
 /// Registra el hook global WH_KEYBOARD_LL y expone cada pulsación como evento.
-/// Fase 0: solo detecta, nunca suprime ninguna tecla (siempre llama a CallNextHookEx).
-/// La supresión se añadirá en una fase posterior, una vez validado que la detección es fiable.
 /// </summary>
 public class KeyboardHookService : IDisposable
 {
+    // Supresión de teclado (temporal, Fase 0)
+    // true  -> las pulsaciones detectadas se suprimen y no llegan a ninguna otra app.
+    // false -> comportamiento original: solo se detectan, nunca se bloquean.
+    // TODO: cuando se integre con la máquina de estados, esta constante debería sustituirse por una condición real (p. ej. "estado actual es Bloqueado1 o Bloqueado2").
+    private const bool HideKeys = false;
+
     private readonly LowLevelKeyboardProc _proc;
     private IntPtr _hookId = IntPtr.Zero;
 
@@ -72,10 +76,17 @@ public class KeyboardHookService : IDisposable
                 var hookStruct = Marshal.PtrToStructure<KbdLlHookStruct>(lParam);
                 var key = KeyInterop.KeyFromVirtualKey((int)hookStruct.VkCode);
                 KeyPressed?.Invoke(this, new KeyboardKeyEventArgs(key, isKeyDown));
+
+                // Supresión de teclado
+                if (HideKeys)
+                {
+                    // Un valor != 0 le indica a Windows que la pulsación queda "consumida".
+                    // IMPORTANTE: no llamar a CallNextHookEx en este camino, o la tecla igualmente pasaría.
+                    return (IntPtr)1;
+                }
             }
         }
 
-        // Fase 0: la pulsación siempre continúa su camino normal, nunca se bloquea aquí.
         return KeyboardHookNative.CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
