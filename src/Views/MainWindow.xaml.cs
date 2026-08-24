@@ -1,21 +1,19 @@
 using System.ComponentModel;
 using System.Windows;
+using Breaksy.Models;
 using Breaksy.Services;
 
 namespace Breaksy.Views;
 
 public partial class MainWindow : Window
 {
-    // Bloqueo de cierre normal
-    // true  -> Alt+F4 y "cerrar" desde la barra de tareas quedan bloqueados, solo el botón "Cerrar (prueba)" puede cerrar la ventana.
-    // false -> comportamiento normal de una ventana WPF.
-    // TODO: cuando se integre con la máquina de estados, esta constante debería sustituirse por una condición real (p. ej. "estado actual es Bloqueado1 o Bloqueado2").
+    // Bloqueo de cierre normal (temporal, Fase 0)
+    // TODO: sustituir esta constante por una condición real cuando se integre con la máquina de estados (Blocked1 / Blocked2 / Sleeping).
     private const bool BlockNormalClosing = true;
-
-    // Se pone a true justo antes de cerrar desde el botón, para distinguir ese cierre "legítimo" de uno disparado por Windows (Alt+F4, barra de tareas...).
     private bool _allowClosingButton = false;
 
     private readonly KeyboardHookService _keyboardHook = new();
+    private readonly BreaksyStateMachine _stateMachine = new();
 
     public MainWindow()
     {
@@ -29,7 +27,14 @@ public partial class MainWindow : Window
     {
         _keyboardHook.KeyPressed += OnKeyPressed;
         _keyboardHook.Start();
-        Console.WriteLine("[Breaksy] Hook de teclado activo. Pulsa teclas para verlas aquí.\n");
+        Console.WriteLine("[Breaksy] Hook de teclado activo.\n");
+
+        _stateMachine.StateChanged += OnStateChanged;
+        _stateMachine.Tick += OnTick;
+
+        UpdateStateLabel(_stateMachine.CurrentState);
+        UpdateTimeLabel(_stateMachine.RemainingTime);
+        UpdateButtons(_stateMachine.CurrentState);
     }
 
     private void OnKeyPressed(object? sender, KeyboardKeyEventArgs e)
@@ -38,6 +43,62 @@ public partial class MainWindow : Window
         Console.WriteLine($"[{estado}] {e.Key}");
     }
 
+    // === Fase 2: máquina de estados ===
+
+    private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
+    {
+        Console.WriteLine($"[Breaksy] {e.OldState} -> {e.NewState}");
+        UpdateStateLabel(e.NewState);
+        UpdateTimeLabel(_stateMachine.RemainingTime);
+        UpdateButtons(e.NewState);
+    }
+
+    private void OnTick(object? sender, TimeSpan remaining) => UpdateTimeLabel(remaining);
+
+    private void UpdateStateLabel(BreaksyState state) => TxTStatus.Text = $"Estado: {state}";
+
+    private void UpdateTimeLabel(TimeSpan remaining)
+    {
+        TxtTime.Text = remaining <= TimeSpan.Zero
+            ? "--:--"
+            : $"{(int)remaining.TotalMinutes:D2}:{remaining.Seconds:D2}";
+    }
+
+    // Habilita/deshabilita botones según el estado, solo para que las pruebas manuales sean más claras. 
+    // Los guardas reales viven en BreaksyStateMachine; esto es puramente cosmético.
+    private void UpdateButtons(BreaksyState state)
+    {
+        BtnStart.IsEnabled = state is BreaksyState.Idle or BreaksyState.Disabled or BreaksyState.Waiting;
+
+        BtnPause.IsEnabled = state is BreaksyState.Awaken or BreaksyState.Warning
+            or BreaksyState.SeriousWarning or BreaksyState.Paused;
+        BtnPause.Content = state == BreaksyState.Paused ? "Reanudar" : "Pausar";
+
+        BtnExtend.IsEnabled = state == BreaksyState.Blocked1;
+        BtnRest.IsEnabled = state is BreaksyState.Blocked1 or BreaksyState.Blocked2;
+        BtnDisable.IsEnabled = state is not (BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping);
+    }
+
+    private void OnBtnStartClick(object sender, RoutedEventArgs e) => _stateMachine.Start();
+
+    private void OnBtnPauseClick(object sender, RoutedEventArgs e)
+    {
+        if (_stateMachine.CurrentState == BreaksyState.Paused)
+        {
+            _stateMachine.Resume();
+        }
+        else
+        {
+            _stateMachine.Pause();
+        }
+    }
+
+    private void OnBtnExtendClick(object sender, RoutedEventArgs e) => _stateMachine.RequestExtension();
+
+    private void OnBtnRestClick(object sender, RoutedEventArgs e) => _stateMachine.RequestRest();
+
+    private void OnBtnDisableClick(object sender, RoutedEventArgs e) => _stateMachine.Disable();
+
     // único botón habilitado para cerrar
     private void OnBtnCloseClick(object sender, RoutedEventArgs e)
     {
@@ -45,7 +106,6 @@ public partial class MainWindow : Window
         Close();
     }
 
-    // cancela cualquier cierre que no venga del botón
     private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (BlockNormalClosing && !_allowClosingButton)
@@ -58,5 +118,9 @@ public partial class MainWindow : Window
     {
         _keyboardHook.KeyPressed -= OnKeyPressed;
         _keyboardHook.Dispose();
+
+        _stateMachine.StateChanged -= OnStateChanged;
+        _stateMachine.Tick -= OnTick;
+        _stateMachine.Dispose();
     }
 }

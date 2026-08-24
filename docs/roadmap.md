@@ -44,8 +44,7 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
   - `Blocked2` → `Sleeping`.
   - `Sleeping` → `Waiting` automático tras 40s (reseteando extensionUsada).
   - `Waiting` → `Awaken` (por clic del usuario) / `Disabled`.
-
-Awaken / Warning / SeriousWarning → Paused (al pulsar pausar).
+  - `Awaken` / `Warning` / `SeriousWarning` → `Paused` (al pulsar pausar).
 - [ ] Reglas de guarda: prohibir pausar/desactivar en `Blocked1`, `Blocked2` y `Sleeping`; prohibir prórroga en `Blocked2`.
 - [ ] Cronómetro desacoplado de la UI en `Services/` que emita eventos de tick y cambios de estado.
 - [ ] Pruebas unitarias o manuales simulando el tiempo para validar todas las transiciones antes de conectar la UI.

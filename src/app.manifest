@@ -5,12 +5,6 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!--
-          Fase 0: se ejecuta como usuario normal (asInvoker).
-          Si en la Fase 0 se detecta que el hook de teclado necesita
-          privilegios de administrador en tu entorno, se documentará
-          en docs/ y se cambiará a requireAdministrator.
-        -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
