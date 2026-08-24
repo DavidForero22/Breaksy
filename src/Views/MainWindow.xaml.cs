@@ -43,14 +43,26 @@ public partial class MainWindow : Window
         Console.WriteLine($"[{estado}] {e.Key}");
     }
 
-    // === Fase 2: máquina de estados ===
-
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
         Console.WriteLine($"[Breaksy] {e.OldState} -> {e.NewState}");
         UpdateStateLabel(e.NewState);
         UpdateTimeLabel(_stateMachine.RemainingTime);
         UpdateButtons(e.NewState);
+
+        // Bloqueo de teclas dependiendo del estado
+        bool requiresKeyboardBlock = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping;
+
+        if (requiresKeyboardBlock)
+        {
+            _keyboardHook.SuppressKeys = true;
+            _keyboardHook.Start();
+        }
+        else
+        {
+            _keyboardHook.SuppressKeys = false;
+            _keyboardHook.Stop();
+        }
     }
 
     private void OnTick(object? sender, TimeSpan remaining) => UpdateTimeLabel(remaining);

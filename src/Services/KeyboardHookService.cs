@@ -9,11 +9,8 @@ namespace Breaksy.Services;
 /// </summary>
 public class KeyboardHookService : IDisposable
 {
-    // Supresión de teclado (temporal, Fase 0)
-    // true  -> las pulsaciones detectadas se suprimen y no llegan a ninguna otra app.
-    // false -> comportamiento original: solo se detectan, nunca se bloquean.
-    // TODO: cuando se integre con la máquina de estados, esta constante debería sustituirse por una condición real (p. ej. "estado actual es Bloqueado1 o Bloqueado2").
-    private const bool HideKeys = false;
+    // Propiedad dinámica que reemplaza al antiguo 'const bool HideKeys'
+    public bool SuppressKeys { get; set; } = false;
 
     private readonly LowLevelKeyboardProc _proc;
     private IntPtr _hookId = IntPtr.Zero;
@@ -25,14 +22,11 @@ public class KeyboardHookService : IDisposable
         // Se guarda la referencia al delegado para que el GC no lo recoja mientras el hook está activo.
         _proc = HookCallback;
     }
-
+    
     // Instala el hook en el proceso actual. Lanza si Windows lo rechaza.
     public void Start()
     {
-        if (_hookId != IntPtr.Zero)
-        {
-            return;
-        }
+        if (_hookId != IntPtr.Zero) return;
 
         using var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
         using var currentModule = currentProcess.MainModule
@@ -54,10 +48,7 @@ public class KeyboardHookService : IDisposable
     // Libera el hook. Llamarlo varias veces no da error.
     public void Stop()
     {
-        if (_hookId == IntPtr.Zero)
-        {
-            return;
-        }
+        if (_hookId == IntPtr.Zero) return;
 
         KeyboardHookNative.UnhookWindowsHookEx(_hookId);
         _hookId = IntPtr.Zero;
@@ -77,8 +68,8 @@ public class KeyboardHookService : IDisposable
                 var key = KeyInterop.KeyFromVirtualKey((int)hookStruct.VkCode);
                 KeyPressed?.Invoke(this, new KeyboardKeyEventArgs(key, isKeyDown));
 
-                // Supresión de teclado
-                if (HideKeys)
+                // Si la supresión está activa, consumir la pulsación
+                if (SuppressKeys)
                 {
                     // Un valor != 0 le indica a Windows que la pulsación queda "consumida".
                     // IMPORTANTE: no llamar a CallNextHookEx en este camino, o la tecla igualmente pasaría.
