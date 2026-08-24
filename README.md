@@ -14,7 +14,7 @@ La clave del diseño es que **la única vía de salida del bloqueo es una decisi
 
 ## Objetivo del proyecto
 
-Proyecto personal para uso propio, centrado en resolver un problema real de hábitos de trabajo. Sirve también como excusa para aprender C#/.NET y las APIs de Windows relacionadas con hooks de teclado, ventanas superpuestas (*always-on-top*) y síntesis de voz.
+Proyecto personal para uso propio, centrado en resolver un problema real de hábitos de trabajo. Sirve también como excusa para aprender C#/.NET y las APIs de Windows relacionadas con hooks de teclado, ventanas superpuestas y síntesis de voz.
 
 ## Diseño funcional
 
@@ -41,9 +41,9 @@ Proyecto personal para uso propio, centrado en resolver un problema real de háb
 ## Estructura del proyecto
 
 ```
-CodeBreakBuddy/
+Breaksy/
 ├── README.md
-├── docs/                      # Documentación adicional (diagramas, decisiones técnicas, etc.)
+├── docs/                      # Documentación adicional
 ├── assets/
 │   ├── personaje/              # Ilustraciones/sprites del personaje, organizadas por estado
 │   │   ├── dormido/
@@ -60,7 +60,7 @@ CodeBreakBuddy/
 │       ├── bloqueado_2/          # Líneas del segundo bloqueo (más exigentes)
 │       └── despertar/            # Línea al terminar el descanso de 40s
 └── src/
-    └── CodeBreakBuddy/          # Código fuente de la aplicación (C# / .NET / WPF)
+    └── Breaksy/                 # Código fuente de la aplicación (C# / .NET / WPF)
         ├── Models/               # Modelos de datos y estado
         ├── ViewModels/           # Lógica de presentación
         ├── Views/                # Ventanas y XAML
@@ -70,12 +70,10 @@ CodeBreakBuddy/
 
 ## Stack técnico (resumen)
 
-- **Lenguaje/Framework**: C# sobre .NET, interfaz con WPF.
+- **Lenguaje/Framework**: C# sobre .NET 8 (LTS), interfaz con WPF.
 - **Motivo de la elección**: el requisito de bloquear el teclado a nivel de sistema requiere un hook de bajo nivel de Windows (`WH_KEYBOARD_LL`), al que C# accede de forma nativa vía P/Invoke. WPF permite ventanas *always-on-top* sin decoración de forma sencilla, y `System.Speech.Synthesis` cubre la síntesis de voz sin dependencias externas.
 - **Alcance de plataforma**: Windows únicamente (de momento).
 
-Se documentará con más detalle en `docs/` a medida que se tomen decisiones técnicas concretas (estructura de proyecto .NET, gestión de audio, formato de los sprites, etc.).
-
 ## Estado del proyecto
 
-🚧 En fase de diseño. Aún no hay código funcional.
+Fase 0 en progreso: prueba de concepto del hook de teclado (detección, sin supresión todavía) y ventana WPF sin decoración.

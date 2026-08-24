@@ -10,8 +10,9 @@ Cada fase asume que la anterior está terminada y probada manualmente. No hace f
 
 Objetivo: confirmar cuanto antes que las dos piezas más inciertas del proyecto son viables, antes de construir nada más encima.
 
-- [ ] Proyecto .NET mínimo (consola o WPF vacío) que registre un hook de teclado de bajo nivel (`WH_KEYBOARD_LL` vía P/Invoke) y sea capaz de **suprimir** pulsaciones (no solo detectarlas).
-- [ ] Ventana WPF sin decoración, `Topmost = true`, que se mantenga por encima de otras ventanas incluso al hacer clic en otras apps.
+- [x] Proyecto .NET mínimo (WPF) que registre un hook de teclado de bajo nivel (`WH_KEYBOARD_LL` vía P/Invoke) y detecte pulsaciones (por consola).
+- [ ] El hook debe ser capaz de **suprimir** pulsaciones (no solo detectarlas).
+- [x] Ventana WPF sin decoración, `Topmost = true`, que se mantenga por encima de otras ventanas incluso al hacer clic en otras apps.
 - [ ] Probar que esa ventana **no se puede cerrar** con Alt+F4 ni desde la barra de tareas mientras el hook está activo.
 - [ ] Documentar en `docs/` cualquier limitación encontrada (antivirus que marque el hook como sospechoso, necesidad de ejecutar como administrador, comportamiento en múltiples monitores, etc.).
 
@@ -21,10 +22,10 @@ Si algo de esto falla o resulta muy inestable, es el momento de replantear el en
 
 ## Fase 1 — Esqueleto del proyecto .NET
 
-- [ ] Crear la solución y el proyecto WPF dentro de `src/CodeBreakBuddy/`.
-- [ ] Configurar `.gitignore` para .NET (bin/, obj/, etc.).
-- [ ] Decidir versión de .NET (LTS recomendable) y dejarlo anotado en el README.
-- [ ] Ventana principal mínima que arranca y se cierra, sin lógica todavía — solo para confirmar que el proyecto compila y ejecuta.
+- [x] Crear la solución y el proyecto WPF dentro de `src/Breaksy/`.
+- [x] Configurar `.gitignore` para .NET (bin/, obj/, etc.).
+- [x] Decidir versión de .NET (LTS recomendable) y dejarlo anotado en el README — **.NET 8**.
+- [x] Ventana principal mínima que arranca y se cierra, sin lógica todavía — solo para confirmar que el proyecto compila y ejecuta.
 
 ---
 
