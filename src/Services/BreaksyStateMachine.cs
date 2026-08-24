@@ -15,7 +15,7 @@ public class BreaksyStateMachine : IDisposable
     public static readonly TimeSpan NormalDuration = TimeSpan.FromMinutes(1);
     public static readonly TimeSpan ExtensionDuration = TimeSpan.FromMinutes(1);
     public static readonly TimeSpan WarningDuration = TimeSpan.FromMinutes(1);
-    public static readonly TimeSpan SleepDuration = TimeSpan.FromSeconds(20);
+    public static readonly TimeSpan SleepDuration = TimeSpan.FromSeconds(10);
 
     private readonly DispatcherTimer _timer;
     private BreaksyState _stateBeforePause;

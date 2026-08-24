@@ -52,20 +52,19 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 
 ## Fase 3 — Overlay del personaje (esquina inferior derecha)
 
-- [ ] Ventana WPF pequeña, sin bordes, `Topmost`, posicionada en la esquina inferior derecha, que simplemente muestra una imagen estática.
-- [ ] Conectar la ventana a la máquina de estados de la Fase 2: que cambie de imagen según el estado (aunque sean placeholders/rectángulos de colores por ahora, no hace falta arte final todavía).
-- [ ] Contador visible del tiempo restante (aunque sea texto simple) para poder depurar visualmente que el temporizador avanza bien.
-- [ ] Menú contextual o controles al interactuar en `Awaken`/`Paused`/`Idle`/`Waiting`: Iniciar, Pausar, Reanudar, Desactivar y Salir.
+- [x] Ventana WPF pequeña, sin bordes, `Topmost`, posicionada en la esquina inferior derecha, que simplemente muestra una imagen estática.
+- [x] Conectar la ventana a la máquina de estados de la Fase 2: que cambie de imagen según el estado (aunque sean placeholders/rectángulos de colores por ahora, no hace falta arte final todavía).
+- [x] Contador visible del tiempo restante (aunque sea texto simple) para poder depurar visualmente que el temporizador avanza bien.
+- [x] Menú contextual o controles al interactuar en `Awaken`/`Paused`/`Idle`/`Waiting`: Iniciar, Pausar, Reanudar, Desactivar y Salir.
 
 ---
 
 ## Fase 4 — Pantalla de bloqueo
 
-- [ ] Ventana de bloqueo a pantalla completa, `Topmost`, sin controles de cierre.
-- [ ] Activación automática del hook supresor de teclado durante `Blocked1`, `Blocked2` y `Sleeping`.
-- [ ] Botones "¡5 minutos más!" y "Descansar" visibles en `Blocked1`; solo "Descansar" en `Blocked2`.
-- [ ] Habilitar pantalla de descanso durante `Sleeping` con cuenta atrás visual de 40 segundos.
-- [ ] Confirmar liberación segura del hook al entrar en `Waiting` o al conceder la prórroga hacia `Awaken`.
+- [x] Activación automática del hook supresor de teclado durante `Blocked1`, `Blocked2` y `Sleeping`.
+- [x] Botones "¡5 minutos más!" y "Descansar" visibles en `Blocked1`; solo "Descansar" en `Blocked2`.
+- [x] Habilitar pantalla de descanso durante `Sleeping` con cuenta atrás visual de 30 segundos.
+- [x] Confirmar liberación segura del hook al entrar en `Waiting` o al conceder la prórroga hacia `Awaken`.
 
 ---
 
