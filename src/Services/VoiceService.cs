@@ -12,6 +12,7 @@ namespace Breaksy.Services;
 public class VoiceService : IDisposable
 {
     private readonly BreaksyStateMachine _stateMachine;
+    private readonly SettingsService _settings;
     private readonly MediaPlayer _mediaPlayer;
     private readonly DispatcherTimer _blockedTimer;
     private readonly string _baseVoicePath;
@@ -19,11 +20,10 @@ public class VoiceService : IDisposable
 
     private int _blockedSeconds = 0;
 
-    public bool IsMuted { get; set; } = false;
-
-    public VoiceService(BreaksyStateMachine stateMachine)
+    public VoiceService(BreaksyStateMachine stateMachine, SettingsService settings)
     {
         _stateMachine = stateMachine;
+        _settings = settings;
         _mediaPlayer = new MediaPlayer();
         _random = new Random();
 
@@ -120,7 +120,7 @@ public class VoiceService : IDisposable
 
     private void PlayRandomVoice(string subCategoryPath)
     {
-        if (IsMuted) return;
+        if (_settings.IsMuted) return;
 
         var fullPath = Path.Combine(_baseVoicePath, subCategoryPath);
         string[] files = Array.Empty<string>();
@@ -137,13 +137,13 @@ public class VoiceService : IDisposable
         // Lógica de Fallback si la carpeta no existe o está vacía
         if (files.Length == 0)
         {
-            Console.WriteLine($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
-            
+            LogService.Log($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
+
             var fallbackDir = Path.Combine(_baseVoicePath, "random");
             if (Directory.Exists(fallbackDir))
             {
                 files = Directory.GetFiles(fallbackDir, "*.*")
-                                 .Where(f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) || 
+                                 .Where(f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) ||
                                               f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase))
                                  .ToArray();
             }
@@ -151,16 +151,15 @@ public class VoiceService : IDisposable
             // Si no se encuentra el archivo de fallback específico, abortar
             if (files.Length == 0)
             {
-                Console.WriteLine("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/random/.");
-                return;
+                LogService.Log("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/random/."); return;
             }
         }
 
         // Reproducir el archivo (ya sea el específico o el de fallback)
-        var randomFile = files[_random.Next(files.Length)];
-        Console.WriteLine($"[VoiceService] REPRODUCIENDO -> {Path.GetFileName(randomFile)}");
+        var targetFile = files.Length == 1 ? files[0] : files[_random.Next(files.Length)];
+        LogService.Log($"[VoiceService] REPRODUCIENDO -> {Path.GetFileName(targetFile)}");
 
-        _mediaPlayer.Open(new Uri(randomFile));
+        _mediaPlayer.Open(new Uri(targetFile));
         _mediaPlayer.Play();
     }
 

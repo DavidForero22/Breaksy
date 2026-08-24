@@ -41,9 +41,10 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand StartCommand { get; }
     public ICommand PauseCommand { get; }
     public ICommand DisableCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
     public ICommand CloseCommand { get; }
 
-    public MainViewModel(BreaksyStateMachine stateMachine, Action closeAction)
+    public MainViewModel(BreaksyStateMachine stateMachine, Action openSettingsAction, Action closeAction)
     {
         _stateMachine = stateMachine;
         _closeAction = closeAction;
@@ -57,6 +58,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
         PauseCommand = new RelayCommand(_ => TogglePause());
         DisableCommand = new RelayCommand(_ => _stateMachine.Disable());
+        OpenSettingsCommand = new RelayCommand(_ => openSettingsAction());
         CloseCommand = new RelayCommand(_ => _closeAction());
 
         _stateMachine.StateChanged += OnStateChanged;
@@ -83,8 +85,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
         // Logs
-        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        Console.WriteLine($"[{timestamp}] [Status changed] {e.OldState} -> {e.NewState}");
+        LogService.Log($"[Status changed] {e.OldState} -> {e.NewState}");
 
         UpdateVisuals(e.NewState);
         OnTick(null, _stateMachine.RemainingTime);

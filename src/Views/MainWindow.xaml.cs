@@ -9,6 +9,7 @@ public partial class MainWindow : Window
 {
     private readonly BreaksyStateMachine _stateMachine = new();
     private readonly KeyboardHookService _keyboardHook = new();
+    private readonly SettingsService _settingsService = new();
     private readonly VoiceService _voiceService;
 
     private MainViewModel? _viewModel;
@@ -18,15 +19,25 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        _voiceService = new VoiceService(_stateMachine);
+        _voiceService = new VoiceService(_stateMachine, _settingsService);
 
-        _viewModel = new MainViewModel(_stateMachine, Close);
+        _viewModel = new MainViewModel(_stateMachine, OpenSettingsWindow, Close);
         DataContext = _viewModel;
 
         _stateMachine.StateChanged += OnStateChanged;
 
         Loaded += OnLoaded;
         Closed += OnClosed;
+    }
+
+    private void OpenSettingsWindow()
+    {
+        var settingsViewModel = new SettingsViewModel(_settingsService);
+        var settingsWindow = new SettingsWindow(settingsViewModel)
+        {
+            Owner = this
+        };
+        settingsWindow.ShowDialog();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -79,4 +90,5 @@ public partial class MainWindow : Window
 
         _blockWindow?.Close();
     }
+
 }
