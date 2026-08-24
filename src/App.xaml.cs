@@ -10,9 +10,9 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         ConsoleInterop.EnsureConsole();
-        Console.WriteLine("=== Breaksy — Fase 0: prueba de hook de teclado ===");
         Console.WriteLine("Cierra la ventana del personaje para terminar.\n");
 
         base.OnStartup(e);
     }
 }
+ 

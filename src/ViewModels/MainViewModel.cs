@@ -13,7 +13,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly KeyboardHookService _keyboardHook;
     private readonly Action _closeAction;
 
-    // Propiedades enlazadas a la UI
+    // Propiedades UI (Textos, colores, permisos)
     private string _stateText = "Estado: Idle";
     public string StateText { get => _stateText; set => SetProperty(ref _stateText, value); }
 
@@ -38,26 +38,29 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _canDisable = false;
     public bool CanDisable { get => _canDisable; set => SetProperty(ref _canDisable, value); }
 
-    // Comandos
     public ICommand StartCommand { get; }
     public ICommand PauseCommand { get; }
     public ICommand DisableCommand { get; }
     public ICommand CloseCommand { get; }
 
-    public MainViewModel(Action closeAction)
+    public MainViewModel(BreaksyStateMachine stateMachine, Action closeAction)
     {
+        _stateMachine = stateMachine;
         _closeAction = closeAction;
-        _stateMachine = new BreaksyStateMachine();
+
         _keyboardHook = new KeyboardHookService();
 
-        StartCommand = new RelayCommand(_ => _stateMachine.Start());
+        StartCommand = new RelayCommand(_ =>
+        {
+            if (CanStart) _stateMachine.Start();
+        });
+
         PauseCommand = new RelayCommand(_ => TogglePause());
         DisableCommand = new RelayCommand(_ => _stateMachine.Disable());
         CloseCommand = new RelayCommand(_ => _closeAction());
 
         _stateMachine.StateChanged += OnStateChanged;
         _stateMachine.Tick += OnTick;
-        _keyboardHook.KeyPressed += OnKeyPressed;
 
         UpdateVisuals(_stateMachine.CurrentState);
     }
@@ -79,7 +82,10 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
-        Console.WriteLine($"[Breaksy] {e.OldState} -> {e.NewState}");
+        // Logs
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        Console.WriteLine($"[{timestamp}] [Status change] {e.OldState} -> {e.NewState}");
+
         UpdateVisuals(e.NewState);
         OnTick(null, _stateMachine.RemainingTime);
 
@@ -99,8 +105,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private void UpdateVisuals(BreaksyState state)
     {
-        StateText = $"Estado: {state}";
-
         CanStart = state is BreaksyState.Idle or BreaksyState.Disabled or BreaksyState.Waiting;
         CanPause = state is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning or BreaksyState.Paused;
         PauseMenuHeader = state == BreaksyState.Paused ? "Reanudar" : "Pausar";
@@ -108,53 +112,24 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
         switch (state)
         {
-            case BreaksyState.Disabled:
-                Face = "🌑";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(50, 50, 50));
-                break;
+            case BreaksyState.Disabled: Face = "🌑"; FaceBackground = new SolidColorBrush(Color.FromRgb(50, 50, 50)); break;
             case BreaksyState.Idle:
-            case BreaksyState.Waiting:
-                Face = "🧍";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(100, 150, 200));
-                break;
-            case BreaksyState.Awaken:
-                Face = "🧑‍💻";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
-                break;
-            case BreaksyState.Paused:
-                Face = "⏸️";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
-                break;
+            case BreaksyState.Waiting: Face = "🧍"; FaceBackground = new SolidColorBrush(Color.FromRgb(100, 150, 200)); break;
+            case BreaksyState.Awaken: Face = "🧑‍💻"; FaceBackground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); break;
+            case BreaksyState.Paused: Face = "⏸️"; FaceBackground = new SolidColorBrush(Color.FromRgb(255, 193, 7)); break;
             case BreaksyState.Warning:
-            case BreaksyState.SeriousWarning:
-                Face = "😠";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(255, 152, 0));
-                break;
+            case BreaksyState.SeriousWarning: Face = "😠"; FaceBackground = new SolidColorBrush(Color.FromRgb(255, 152, 0)); break;
             case BreaksyState.Blocked1:
-            case BreaksyState.Blocked2:
-                Face = "🛑";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
-                break;
-            case BreaksyState.Sleeping:
-                Face = "💤";
-                FaceBackground = new SolidColorBrush(Color.FromRgb(103, 58, 183));
-                break;
+            case BreaksyState.Blocked2: Face = "🛑"; FaceBackground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); break;
+            case BreaksyState.Sleeping: Face = "💤"; FaceBackground = new SolidColorBrush(Color.FromRgb(103, 58, 183)); break;
         }
-    }
-
-    private void OnKeyPressed(object? sender, KeyboardKeyEventArgs e)
-    {
-        var estado = e.IsKeyDown ? "DOWN" : "UP  ";
-        Console.WriteLine($"[{estado}] {e.Key}");
     }
 
     public void Dispose()
     {
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnTick;
-        _stateMachine.Dispose();
 
-        _keyboardHook.KeyPressed -= OnKeyPressed;
         _keyboardHook.Dispose();
     }
 
@@ -171,7 +146,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 public class RelayCommand : ICommand
 {
     private readonly Action<object?> _execute;
-    public event EventHandler? CanExecuteChanged { add { } remove { } } // No se usa activamente aquí
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
     public RelayCommand(Action<object?> execute) => _execute = execute;
     public bool CanExecute(object? parameter) => true;
     public void Execute(object? parameter) => _execute(parameter);

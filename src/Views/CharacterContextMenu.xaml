@@ -1,0 +1,14 @@
+<ContextMenu x:Class="Breaksy.Views.CharacterContextMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <MenuItem Header="{Binding PauseMenuHeader}"
+            Command="{Binding PauseCommand}"
+            IsEnabled="{Binding CanPause}"/>
+    <MenuItem Header="Desactivar"
+            Command="{Binding DisableCommand}"
+            IsEnabled="{Binding CanDisable}"/>
+    <Separator/>
+    <MenuItem Header="Cerrar Breaksy"
+            Command="{Binding CloseCommand}"/>
+</ContextMenu>
