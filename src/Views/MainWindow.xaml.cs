@@ -7,11 +7,6 @@ namespace Breaksy.Views;
 
 public partial class MainWindow : Window
 {
-    // Bloqueo de cierre normal (temporal, Fase 0)
-    // TODO: sustituir esta constante por una condición real cuando se integre con la máquina de estados (Blocked1 / Blocked2 / Sleeping).
-    private const bool BlockNormalClosing = true;
-    private bool _allowClosingButton = false;
-
     private readonly KeyboardHookService _keyboardHook = new();
     private readonly BreaksyStateMachine _stateMachine = new();
 
@@ -19,7 +14,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Loaded += OnLoaded;
-        Closing += OnClosing;
         Closed += OnClosed;
     }
 
@@ -114,16 +108,7 @@ public partial class MainWindow : Window
     // único botón habilitado para cerrar
     private void OnBtnCloseClick(object sender, RoutedEventArgs e)
     {
-        _allowClosingButton = true;
         Close();
-    }
-
-    private void OnClosing(object? sender, CancelEventArgs e)
-    {
-        if (BlockNormalClosing && !_allowClosingButton)
-        {
-            e.Cancel = true;
-        }
     }
 
     private void OnClosed(object? sender, EventArgs e)

@@ -33,8 +33,8 @@ Si algo de esto falla o resulta muy inestable, es el momento de replantear el en
 
 Esta es la parte más importante de todo el proyecto: si esto está bien hecho, la UI luego es "solo" pintar lo que la máquina de estados dice.
 
-- [ ] Modelar los estados como enum en `Models/BreaksyState.cs`: `Disabled`, `Idle`, `Awaken`, `Paused`, `Warning`, `SeriousWarning`, `Blocked1`, `Blocked2`, `Sleeping`, `Waiting`.
-- [ ] Implementar las transiciones:
+- [x] Modelar los estados como enum en `Models/BreaksyState.cs`: `Disabled`, `Idle`, `Awaken`, `Paused`, `Warning`, `SeriousWarning`, `Blocked1`, `Blocked2`, `Sleeping`, `Waiting`.
+- [x] Implementar las transiciones:
   - `Disabled` / `Idle` → `Awaken` (por clic del usuario).
   - `Awaken` (ciclo normal) → `Warning` (al agotar 20 min) / `Paused` / `Disabled`.
   - `Awaken` (con prórroga) → `SeriousWarning` (al agotar 5 min) / `Paused` / `Disabled`.
@@ -45,9 +45,9 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
   - `Sleeping` → `Waiting` automático tras 40s (reseteando extensionUsada).
   - `Waiting` → `Awaken` (por clic del usuario) / `Disabled`.
   - `Awaken` / `Warning` / `SeriousWarning` → `Paused` (al pulsar pausar).
-- [ ] Reglas de guarda: prohibir pausar/desactivar en `Blocked1`, `Blocked2` y `Sleeping`; prohibir prórroga en `Blocked2`.
-- [ ] Cronómetro desacoplado de la UI en `Services/` que emita eventos de tick y cambios de estado.
-- [ ] Pruebas unitarias o manuales simulando el tiempo para validar todas las transiciones antes de conectar la UI.
+- [x] Reglas de guarda: prohibir pausar/desactivar en `Blocked1`, `Blocked2` y `Sleeping`; prohibir prórroga en `Blocked2`.
+- [x] Cronómetro desacoplado de la UI en `Services/` que emita eventos de tick y cambios de estado.
+- [x] Pruebas unitarias o manuales simulando el tiempo para validar todas las transiciones antes de conectar la UI.
 
 ---
 
