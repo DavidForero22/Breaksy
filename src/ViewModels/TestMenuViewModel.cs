@@ -19,44 +19,60 @@ public class TestMenuViewModel : INotifyPropertyChanged
         set => SetProperty(ref _selectedState, value);
     }
 
-    private int _minutes;
-    public int Minutes
+    // --- Duraciones configurables ---
+    private int _awakenMinutes;
+    public int AwakenMinutes
     {
-        get => _minutes;
-        set => SetProperty(ref _minutes, value);
+        get => _awakenMinutes;
+        set
+        {
+            if (SetProperty(ref _awakenMinutes, value))
+                _stateMachine.NormalDuration = TimeSpan.FromMinutes(value);
+        }
     }
 
-    private int _seconds;
-    public int Seconds
+    private int _warningMinutes;
+    public int WarningMinutes
     {
-        get => _seconds;
-        set => SetProperty(ref _seconds, value);
+        get => _warningMinutes;
+        set
+        {
+            if (SetProperty(ref _warningMinutes, value))
+                _stateMachine.WarningDuration = TimeSpan.FromMinutes(value);
+        }
+    }
+
+    private int _sleepSeconds;
+    public int SleepSeconds
+    {
+        get => _sleepSeconds;
+        set
+        {
+            if (SetProperty(ref _sleepSeconds, value))
+                _stateMachine.SleepDuration = TimeSpan.FromSeconds(value);
+        }
     }
 
     public ICommand ForceStateCommand { get; }
-    public ICommand ForceTimeCommand { get; }
 
     public TestMenuViewModel(BreaksyStateMachine stateMachine)
     {
         _stateMachine = stateMachine;
         SelectedState = _stateMachine.CurrentState;
 
-        Minutes = _stateMachine.RemainingTime.Minutes;
-        Seconds = _stateMachine.RemainingTime.Seconds;
+        _awakenMinutes = (int)_stateMachine.NormalDuration.TotalMinutes;
+        _warningMinutes = (int)_stateMachine.WarningDuration.TotalMinutes;
+        _sleepSeconds = (int)_stateMachine.SleepDuration.TotalSeconds;
 
         ForceStateCommand = new RelayCommand(_ => _stateMachine.ForceState(SelectedState));
-        ForceTimeCommand = new RelayCommand(_ =>
-        {
-            var newTime = new TimeSpan(0, Minutes, Seconds);
-            _stateMachine.ForceTime(newTime);
-        });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    protected void SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
+    protected bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
     {
-        if (EqualityComparer<T>.Default.Equals(backingStore, value)) return;
+        if (EqualityComparer<T>.Default.Equals(backingStore, value)) return false;
         backingStore = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return true;
     }
 }

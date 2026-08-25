@@ -9,11 +9,10 @@ namespace Breaksy.Services;
 /// </summary>
 public class BreaksyStateMachine : IDisposable
 {
-    public static readonly TimeSpan NormalDuration = TimeSpan.FromMinutes(1);
-    public static readonly TimeSpan ExtensionDuration = TimeSpan.FromMinutes(1);
-    public static readonly TimeSpan WarningDuration = TimeSpan.FromMinutes(1);
-    public static readonly TimeSpan SleepDuration = TimeSpan.FromSeconds(10);
-
+public TimeSpan NormalDuration { get; set; } = TimeSpan.FromMinutes(20);
+    public TimeSpan ExtensionDuration { get; set; } = TimeSpan.FromMinutes(5);
+    public TimeSpan WarningDuration { get; set; } = TimeSpan.FromMinutes(1);
+    public TimeSpan SleepDuration { get; set; } = TimeSpan.FromSeconds(10);
     private readonly DispatcherTimer _timer;
     private BreaksyState _stateBeforePause;
 
@@ -100,13 +99,6 @@ public class BreaksyStateMachine : IDisposable
         ChangeState(newState);
 
         if (duration > TimeSpan.Zero) _timer.Start();
-    }
-
-    /// <summary>Forzar un tiempo restante específico sin cambiar el estado actual.</summary>
-    public void ForceTime(TimeSpan time)
-    {
-        RemainingTime = time;
-        Tick?.Invoke(this, RemainingTime);
     }
 
     // === Temporizador interno ===

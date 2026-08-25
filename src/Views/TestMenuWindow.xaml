@@ -2,76 +2,99 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Menú de Pruebas (Debug)"
-        Height="280"
         Width="300"
+        SizeToContent="Height"
         WindowStyle="ToolWindow"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="#252526"
         Foreground="White">
-    <Grid Margin="20">
-        <StackPanel>
-
-            <!-- Forzar Estado -->
-            <TextBlock Text="Forzar Estado"
-                    FontSize="16"
-                    FontWeight="Bold"
-                    Foreground="#4FC3F7"
-                    Margin="0,0,0,10"/>
-            <ComboBox ItemsSource="{Binding AvailableStates}"
-                      SelectedItem="{Binding SelectedState}"
-                      Margin="0,0,0,10"
-                    Height="25"/>
-            <Button Content="Aplicar Estado"
-                    Command="{Binding ForceStateCommand}"
-                    Background="#333333"
-                    Foreground="White"
-                    Height="30"
-                    Cursor="Hand"/>
-
-            <Separator Margin="0,15,0,15"
-                    Background="#444444"
-                    Height="1"/>
-
-            <!-- Forzar Tiempo -->
-            <TextBlock Text="Modificar Temporizador"
-                    FontSize="16"
-                    FontWeight="Bold"
-                    Foreground="#FFB300"
-                    Margin="0,0,0,10"/>
-            <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,10">
-                <StackPanel Margin="0,0,15,0">
-                    <TextBlock Text="Minutos"
-                            HorizontalAlignment="Center"
-                            Foreground="#AAAAAA"/>
-                    <TextBox Text="{Binding Minutes}"
-                            Width="50"
-                            Height="25"
-                            TextAlignment="Center"/>
-                </StackPanel>
-                <TextBlock Text=":"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        Margin="0,10,15,0"/>
+        <Grid Margin="20,20,20,25">
                 <StackPanel>
-                    <TextBlock Text="Segundos"
-                            HorizontalAlignment="Center"
-                            Foreground="#AAAAAA"/>
-                    <TextBox Text="{Binding Seconds}"
-                            Width="50"
-                            Height="25"
-                            TextAlignment="Center"/>
-                </StackPanel>
-            </StackPanel>
-            <Button Content="Aplicar Tiempo"
-                    Command="{Binding ForceTimeCommand}"
-                    Background="#333333"
-                    Foreground="White"
-                    Height="30"
-                    Cursor="Hand"/>
 
-        </StackPanel>
-    </Grid>
+                        <!-- Ajustar Duraciones -->
+                        <TextBlock Text="Ajustar Duraciones"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#FFB300"
+                                   Margin="0,0,0,15"/>
+
+                        <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                                Grid.Column="0"
+                                                Text="Despierto (min):"
+                                                Foreground="#AAAAAA"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,0,8"/>
+                                <TextBox Grid.Row="0"
+                                                Grid.Column="1"
+                                                Text="{Binding AwakenMinutes, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="50"
+                                                Height="22"
+                                                HorizontalAlignment="Left"
+                                                TextAlignment="Center"
+                                                Margin="0,0,0,8"/>
+
+                                <TextBlock Grid.Row="1"
+                                                Grid.Column="0"
+                                                Text="Avisos (min):"
+                                                Foreground="#AAAAAA"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,0,8"/>
+                                <TextBox Grid.Row="1"
+                                                Grid.Column="1"
+                                                Text="{Binding WarningMinutes, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="50"
+                                                Height="22"
+                                                HorizontalAlignment="Left"
+                                                TextAlignment="Center"
+                                                Margin="0,0,0,8"/>
+
+                                <TextBlock Grid.Row="2"
+                                                Grid.Column="0"
+                                                Text="Descanso (seg):"
+                                                Foreground="#AAAAAA"
+                                                VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="2"
+                                                Grid.Column="1"
+                                                Text="{Binding SleepSeconds, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="50"
+                                                Height="22"
+                                                HorizontalAlignment="Left"
+                                                TextAlignment="Center"/>
+                        </Grid>
+
+                        <Separator Margin="0,15,0,15"
+                                   Background="#444444"
+                                   Height="1"/>
+
+                        <!-- Forzar Estado -->
+                        <TextBlock Text="Forzar Estado"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#4FC3F7"
+                                   Margin="0,0,0,10"/>
+                        <ComboBox ItemsSource="{Binding AvailableStates}"
+                                  SelectedItem="{Binding SelectedState}"
+                                  Margin="0,0,0,10"
+                                  Height="25"/>
+                        <Button Content="Aplicar Estado"
+                                Command="{Binding ForceStateCommand}"
+                                Background="#333333"
+                                Foreground="White"
+                                Height="30"
+                                Cursor="Hand"/>
+
+                </StackPanel>
+        </Grid>
 </Window>
