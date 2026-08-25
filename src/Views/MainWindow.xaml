@@ -4,13 +4,13 @@
         xmlns:local="clr-namespace:Breaksy.Views"
         Title="Breaksy"
         Height="180"
-                Width="140"
+        Width="140"
         WindowStyle="None"
-                ResizeMode="NoResize"
-                ShowInTaskbar="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True"
         Topmost="True"
-                AllowsTransparency="True"
-                Background="Transparent">
+        AllowsTransparency="True"
+        Background="Transparent">
 
         <Grid Background="Transparent">
 
@@ -18,31 +18,57 @@
                         <local:CharacterContextMenu/>
                 </Grid.ContextMenu>
 
-                <Border Background="{Binding FaceBackground}"
+                <!-- Contenedor de la Mascota -->
+                <Border Margin="10,10,10,45"
                         CornerRadius="15"
-                                Margin="10,10,10,45"
-                        BorderBrush="#222222"
-                                BorderThickness="2">
+                        Cursor="Hand"
+                        MinWidth="100"
+                                MinHeight="100">
+
+                        <Border.Style>
+                                <Style TargetType="Border">
+                                        <Setter Property="Background"
+                                                        Value="Transparent"/>
+                                        <Style.Triggers>
+                                                <!-- Si el servicio devuelve vacío, pinta un cuadrado blanco sólido  -->
+                                                <DataTrigger Binding="{Binding ImagePath}"
+                                                                Value="">
+                                                        <Setter Property="Background"
+                                                                        Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ImagePath}"
+                                                                Value="{x:Null}">
+                                                        <Setter Property="Background"
+                                                                        Value="White"/>
+                                                </DataTrigger>
+                                        </Style.Triggers>
+                                </Style>
+                        </Border.Style>
 
                         <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick"
                                                 Command="{Binding StartCommand}"/>
                         </Border.InputBindings>
 
-                        <TextBlock Text="{Binding Face}"
-                                        Cursor="Hand"
-                                   FontSize="45"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                        <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2"
+                                                BlurRadius="5"
+                                                Opacity="0.6"/>
+                        </Border.Effect>
+
+                        <!-- La imagen se pintará encima del borde -->
+                        <Image Source="{Binding ImagePath}"
+                                        Stretch="Uniform"/>
                 </Border>
 
+                <!-- Textos informativos  -->
                 <StackPanel VerticalAlignment="Bottom"
                                 Margin="0,0,0,5">
                         <TextBlock Text="{Binding StateText}"
-                                        Foreground="#4FC3F7"
-                                        FontSize="11"
-                                        FontWeight="Bold"
-                                        HorizontalAlignment="Center">
+                                   Foreground="#4FC3F7"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center">
                                 <TextBlock.Effect>
                                         <DropShadowEffect ShadowDepth="1"
                                                         BlurRadius="2"
@@ -50,10 +76,10 @@
                                 </TextBlock.Effect>
                         </TextBlock>
                         <TextBlock Text="{Binding TimeText}"
-                                        Foreground="White"
-                                        FontSize="16"
-                                        FontWeight="Bold"
-                                        HorizontalAlignment="Center">
+                                   Foreground="White"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center">
                                 <TextBlock.Effect>
                                         <DropShadowEffect ShadowDepth="1"
                                                         BlurRadius="2"

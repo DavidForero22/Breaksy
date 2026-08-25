@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Windows.Media;
 using Breaksy.Models;
 using Breaksy.Services;
 
@@ -10,21 +9,18 @@ namespace Breaksy.ViewModels;
 public class MainViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly BreaksyStateMachine _stateMachine;
+    private readonly CharacterImageService _imageService;
     private readonly KeyboardHookService _keyboardHook;
     private readonly Action _closeAction;
 
-    // Propiedades UI (Textos, colores, permisos)
+    private string _imagePath = string.Empty;
+    public string ImagePath { get => _imagePath; set => SetProperty(ref _imagePath, value); }
+
     private string _stateText = "Estado: Idle";
     public string StateText { get => _stateText; set => SetProperty(ref _stateText, value); }
 
     private string _timeText = "--:--";
     public string TimeText { get => _timeText; set => SetProperty(ref _timeText, value); }
-
-    private string _face = "🧍";
-    public string Face { get => _face; set => SetProperty(ref _face, value); }
-
-    private Brush _faceBackground = new SolidColorBrush(Color.FromRgb(100, 150, 200));
-    public Brush FaceBackground { get => _faceBackground; set => SetProperty(ref _faceBackground, value); }
 
     private string _pauseMenuHeader = "Pausar";
     public string PauseMenuHeader { get => _pauseMenuHeader; set => SetProperty(ref _pauseMenuHeader, value); }
@@ -50,12 +46,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _closeAction = closeAction;
 
         _keyboardHook = new KeyboardHookService();
+        _imageService = new CharacterImageService();
 
-        StartCommand = new RelayCommand(_ =>
-        {
-            if (CanStart) _stateMachine.Start();
-        });
-
+        StartCommand = new RelayCommand(_ => { if (CanStart) _stateMachine.Start(); });
         PauseCommand = new RelayCommand(_ => TogglePause());
         DisableCommand = new RelayCommand(_ => _stateMachine.Disable());
         OpenSettingsCommand = new RelayCommand(_ => openSettingsAction());
@@ -84,7 +77,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
-        // Logs
         LogService.Log($"[Status changed] {e.OldState} -> {e.NewState}");
 
         UpdateVisuals(e.NewState);
@@ -111,30 +103,17 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         PauseMenuHeader = state == BreaksyState.Paused ? "Reanudar" : "Pausar";
         CanDisable = state is not (BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping or BreaksyState.Disabled);
 
-        switch (state)
-        {
-            case BreaksyState.Disabled: Face = "🌑"; FaceBackground = new SolidColorBrush(Color.FromRgb(50, 50, 50)); break;
-            case BreaksyState.Idle:
-            case BreaksyState.Waiting: Face = "🧍"; FaceBackground = new SolidColorBrush(Color.FromRgb(100, 150, 200)); break;
-            case BreaksyState.Awaken: Face = "🧑‍💻"; FaceBackground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); break;
-            case BreaksyState.Paused: Face = "⏸️"; FaceBackground = new SolidColorBrush(Color.FromRgb(255, 193, 7)); break;
-            case BreaksyState.Warning:
-            case BreaksyState.SeriousWarning: Face = "😠"; FaceBackground = new SolidColorBrush(Color.FromRgb(255, 152, 0)); break;
-            case BreaksyState.Blocked1:
-            case BreaksyState.Blocked2: Face = "🛑"; FaceBackground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); break;
-            case BreaksyState.Sleeping: Face = "💤"; FaceBackground = new SolidColorBrush(Color.FromRgb(103, 58, 183)); break;
-        }
+        StateText = $"Estado: {state}";
+        ImagePath = _imageService.GetImagePathForState(state);
     }
 
     public void Dispose()
     {
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnTick;
-
         _keyboardHook.Dispose();
     }
 
-    // --- INotifyPropertyChanged ---
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
     {
