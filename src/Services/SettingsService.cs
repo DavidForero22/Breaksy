@@ -22,6 +22,20 @@ public class SettingsService : INotifyPropertyChanged
         }
     }
 
+    private bool _isDebugConsoleEnabled = true;
+    public bool IsDebugConsoleEnabled
+    {
+        get => _isDebugConsoleEnabled;
+        set
+        {
+            if (_isDebugConsoleEnabled != value)
+            {
+                _isDebugConsoleEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {

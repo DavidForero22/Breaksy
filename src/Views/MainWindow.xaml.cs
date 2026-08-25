@@ -2,6 +2,7 @@ using System.Windows;
 using Breaksy.Models;
 using Breaksy.Services;
 using Breaksy.ViewModels;
+using Breaksy.Native;
 
 namespace Breaksy.Views;
 
@@ -26,19 +27,13 @@ public partial class MainWindow : Window
 
         _stateMachine.StateChanged += OnStateChanged;
 
+        _settingsService.PropertyChanged += OnSettingsChanged;
+        ConsoleInterop.SetConsoleVisibility(_settingsService.IsDebugConsoleEnabled);
+
         Loaded += OnLoaded;
         Closed += OnClosed;
     }
 
-    private void OpenSettingsWindow()
-    {
-        var settingsViewModel = new SettingsViewModel(_settingsService);
-        var settingsWindow = new SettingsWindow(settingsViewModel)
-        {
-            Owner = this
-        };
-        settingsWindow.ShowDialog();
-    }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -47,9 +42,16 @@ public partial class MainWindow : Window
         Top = workArea.Bottom - Height - 20;
     }
 
+    private void OnSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsService.IsDebugConsoleEnabled))
+        {
+            ConsoleInterop.SetConsoleVisibility(_settingsService.IsDebugConsoleEnabled);
+        }
+    }
+
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
-        // Gestión del Bloqueo de Teclado
         bool requiresKeyboardBlock = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping;
         if (requiresKeyboardBlock)
         {
@@ -78,15 +80,32 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenSettingsWindow()
+    {
+        Action openTestMenu = () =>
+        {
+            var testViewModel = new TestMenuViewModel(_stateMachine);
+            var testWindow = new TestMenuWindow(testViewModel) { Owner = this };
+            testWindow.ShowDialog();
+        };
+
+        var settingsViewModel = new SettingsViewModel(_settingsService, openTestMenu);
+        var settingsWindow = new SettingsWindow(settingsViewModel)
+        {
+            Owner = this
+        };
+        settingsWindow.ShowDialog();
+    }
+
     private void OnClosed(object? sender, EventArgs e)
     {
-        _voiceService.Dispose();
-
         _stateMachine.StateChanged -= OnStateChanged;
+        _settingsService.PropertyChanged -= OnSettingsChanged;
 
         _viewModel?.Dispose();
         _stateMachine.Dispose();
         _keyboardHook.Dispose();
+        _voiceService.Dispose();
 
         _blockWindow?.Close();
     }

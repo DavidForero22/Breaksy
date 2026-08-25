@@ -1,0 +1,77 @@
+<Window x:Class="Breaksy.Views.TestMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Menú de Pruebas (Debug)"
+        Height="280"
+        Width="300"
+        WindowStyle="ToolWindow"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#252526"
+        Foreground="White">
+    <Grid Margin="20">
+        <StackPanel>
+
+            <!-- Forzar Estado -->
+            <TextBlock Text="Forzar Estado"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#4FC3F7"
+                    Margin="0,0,0,10"/>
+            <ComboBox ItemsSource="{Binding AvailableStates}"
+                      SelectedItem="{Binding SelectedState}"
+                      Margin="0,0,0,10"
+                    Height="25"/>
+            <Button Content="Aplicar Estado"
+                    Command="{Binding ForceStateCommand}"
+                    Background="#333333"
+                    Foreground="White"
+                    Height="30"
+                    Cursor="Hand"/>
+
+            <Separator Margin="0,15,0,15"
+                    Background="#444444"
+                    Height="1"/>
+
+            <!-- Forzar Tiempo -->
+            <TextBlock Text="Modificar Temporizador"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FFB300"
+                    Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,10">
+                <StackPanel Margin="0,0,15,0">
+                    <TextBlock Text="Minutos"
+                            HorizontalAlignment="Center"
+                            Foreground="#AAAAAA"/>
+                    <TextBox Text="{Binding Minutes}"
+                            Width="50"
+                            Height="25"
+                            TextAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text=":"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        Margin="0,10,15,0"/>
+                <StackPanel>
+                    <TextBlock Text="Segundos"
+                            HorizontalAlignment="Center"
+                            Foreground="#AAAAAA"/>
+                    <TextBox Text="{Binding Seconds}"
+                            Width="50"
+                            Height="25"
+                            TextAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+            <Button Content="Aplicar Tiempo"
+                    Command="{Binding ForceTimeCommand}"
+                    Background="#333333"
+                    Foreground="White"
+                    Height="30"
+                    Cursor="Hand"/>
+
+        </StackPanel>
+    </Grid>
+</Window>
