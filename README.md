@@ -77,6 +77,50 @@ Breaksy/
 - **Motivo de la elección**: el requisito de bloquear el teclado a nivel de sistema requiere un hook de bajo nivel de Windows (`WH_KEYBOARD_LL`), al que C# accede de forma nativa vía P/Invoke. WPF permite ventanas *always-on-top* sin decoración de forma sencilla, y `System.Speech.Synthesis` cubre la síntesis de voz sin dependencias externas.
 - **Alcance de plataforma**: Windows únicamente (de momento).
 
+## Instalación
+
+### Requisitos
+
+- Windows 10 u 11.
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (incluye el runtime necesario para ejecutar la app).
+- Opcional: Visual Studio 2022 (17.8 o superior) con la carga de trabajo *Desarrollo de escritorio de .NET*.
+
+### Compilar
+
+Desde la raíz del repositorio:
+
+```bash
+dotnet build Breaksy.sln -c Release
+```
+
+El ejecutable queda en `src/bin/Release/net8.0-windows/Breaksy.exe`, junto con la carpeta `assets/` copiada automáticamente.
+
+### Ejecutar
+
+Directamente con la CLI de .NET:
+
+```bash
+dotnet run --project src/Breaksy.csproj -c Release
+```
+
+O lanzando el ejecutable compilado:
+
+```bash
+./src/bin/Release/net8.0-windows/Breaksy.exe
+```
+
+Desde Visual Studio basta con abrir `Breaksy.sln` y pulsar **F5** (depurar) o **Ctrl+F5** (sin depurar).
+
+### Publicar un ejecutable independiente (opcional)
+
+Para generar una versión que no requiera tener .NET instalado en el equipo de destino:
+
+```bash
+dotnet publish src/Breaksy.csproj -c Release -r win-x64 --self-contained true -o publish
+```
+
+El resultado queda en la carpeta `publish/`; basta con copiarla y ejecutar `Breaksy.exe`.
+
 ## Estado del proyecto
 
 Fase 6 en progreso: realizar pruebas y verificar funcionamiento en un ciclo normal.
