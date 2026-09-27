@@ -79,17 +79,17 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 
 ## Fase 6 — Integración completa y pruebas de uso real
 
-- [ ] Prueba del ciclo estándar: `Idle` → `Awaken` (20m) → `Warning` (1m) → `Blocked1` → `Sleeping` (40s) → `Waiting` → `Awaken`.
-- [ ] Prueba del ciclo con prórroga: `Blocked1` → `Awaken` (5m) → `SeriousWarning` (1m) → `Blocked2` → `Sleeping` (40s) → `Waiting` → `Awaken`.
-- [ ] Validación de pausas en fases permitidas y verificación de bloqueo estricto en estados de penalización.
-- [ ] Jornada de prueba en entorno real con IDE/editor habitual para detectar interferencias con atajos de teclado o foco de ventanas.
+- [X] Prueba del ciclo estándar: `Idle` → `Awaken` (20m) → `Warning` (1m) → `Blocked1` → `Sleeping` (40s) → `Waiting` → `Awaken`.
+- [X] Prueba del ciclo con prórroga: `Blocked1` → `Awaken` (5m) → `SeriousWarning` (1m) → `Blocked2` → `Sleeping` (40s) → `Waiting` → `Awaken`.
+- [X] Validación de pausas en fases permitidas y verificación de bloqueo estricto en estados de penalización.
+- [X] Jornada de prueba en entorno real con IDE/editor habitual para detectar interferencias con atajos de teclado o foco de ventanas.
 
 ---
 
 ## Fase 7 — Assets finales
 
-- [ ] Ilustraciones finales del personaje en `assets/personaje/` para cada estado (`disabled`, `idle`, `awaken`, `paused`, `warning`, `serious_warning`, `blocked_1`, `blocked_2`, `sleeping`, `waiting`).
-- [ ] Líneas de audio procesadas en `assets/voces/` (`generico`, `avisos`, `avisos_serios`, `bloqueado_1`, `bloqueado_2`, `despertar`).
+- [X] Ilustraciones por defecto del personaje en `assets/personaje/` para cada estado (`disabled`, `idle`, `awaken`, `paused`, `warning`, `serious_warning`, `blocked_1`, `blocked_2`, `sleeping`, `waiting`).
+- [ ] Líneas de audio por defecto procesadas en `assets/voces/` (`generico`, `avisos`, `avisos_serios`, `bloqueado_1`, `bloqueado_2`, `despertar`).
 - [ ] Reemplazo de placeholders gráficos y de sonido por los recursos definitivos.
 
 ---
