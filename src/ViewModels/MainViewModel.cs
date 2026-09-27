@@ -10,7 +10,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly BreaksyStateMachine _stateMachine;
     private readonly CharacterImageService _imageService;
-    private readonly KeyboardHookService _keyboardHook;
     private readonly Action _closeAction;
 
     private string _imagePath = string.Empty;
@@ -45,7 +44,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _stateMachine = stateMachine;
         _closeAction = closeAction;
 
-        _keyboardHook = new KeyboardHookService();
         _imageService = new CharacterImageService();
 
         StartCommand = new RelayCommand(_ => { if (CanStart) _stateMachine.Start(); });
@@ -81,19 +79,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
         UpdateVisuals(e.NewState);
         OnTick(null, _stateMachine.RemainingTime);
-
-        bool requiresKeyboardBlock = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping;
-
-        if (requiresKeyboardBlock)
-        {
-            _keyboardHook.SuppressKeys = true;
-            _keyboardHook.Start();
-        }
-        else
-        {
-            _keyboardHook.SuppressKeys = false;
-            _keyboardHook.Stop();
-        }
     }
 
     private void UpdateVisuals(BreaksyState state)
@@ -111,7 +96,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnTick;
-        _keyboardHook.Dispose();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

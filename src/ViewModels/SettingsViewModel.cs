@@ -1,13 +1,32 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Breaksy.Models;
 using Breaksy.Services;
 
 namespace Breaksy.ViewModels;
 
+public record InterruptionLevelOption(InterruptionLevel Level, string Name, string Description);
+
 public class SettingsViewModel : INotifyPropertyChanged
 {
     private readonly SettingsService _settings;
+
+    public IReadOnlyList<InterruptionLevelOption> InterruptionLevels { get; } =
+    [
+        new(InterruptionLevel.Light, "Ligero",
+            "El personaje cambia de estado y te avisa por voz."),
+        new(InterruptionLevel.Intermediate, "Intermedio",
+            "Además, se bloquea el teclado para que no puedas seguir escribiendo."),
+        new(InterruptionLevel.Strict, "Estricto",
+            "Además, aparece una ventana de advertencia en el centro de la pantalla.")
+    ];
+
+    public InterruptionLevelOption SelectedInterruptionLevel
+    {
+        get => InterruptionLevels.First(o => o.Level == _settings.InterruptionLevel);
+        set => _settings.InterruptionLevel = value.Level;
+    }
 
     public bool IsMuted
     {
@@ -35,6 +54,9 @@ public class SettingsViewModel : INotifyPropertyChanged
 
             if (e.PropertyName == nameof(SettingsService.IsDebugConsoleEnabled))
                 OnPropertyChanged(nameof(IsDebugConsoleEnabled));
+
+            if (e.PropertyName == nameof(SettingsService.InterruptionLevel))
+                OnPropertyChanged(nameof(SelectedInterruptionLevel));
         };
     }
 

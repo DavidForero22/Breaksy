@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 
     private MainViewModel? _viewModel;
     private BlockWindow? _blockWindow;
+    private TimeUpWindow? _timeUpWindow;
 
     public MainWindow()
     {
@@ -52,7 +53,12 @@ public partial class MainWindow : Window
 
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
-        bool requiresKeyboardBlock = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping;
+        var level = _settingsService.InterruptionLevel;
+        bool isBlocked = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2;
+
+        // Bloqueo de teclado: solo en nivel Intermedio o superior
+        bool requiresKeyboardBlock = level >= InterruptionLevel.Intermediate
+            && (isBlocked || e.NewState == BreaksyState.Sleeping);
         if (requiresKeyboardBlock)
         {
             _keyboardHook.SuppressKeys = true;
@@ -65,7 +71,22 @@ public partial class MainWindow : Window
         }
 
         // Gestión de la Ventana Modal (Pantalla de Bloqueo)
-        bool requiresBlockWindow = e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2;
+        // Ventana de advertencia centrada: solo en nivel Estricto.
+        // Se muestra antes que la de opciones para que esta quede por encima.
+        bool requiresTimeUpWindow = level == InterruptionLevel.Strict && isBlocked;
+
+        if (requiresTimeUpWindow && _timeUpWindow == null)
+        {
+            _timeUpWindow = new TimeUpWindow(canExtend: e.NewState == BreaksyState.Blocked1);
+            _timeUpWindow.Show();
+        }
+        else if (!requiresTimeUpWindow && _timeUpWindow != null)
+        {
+            _timeUpWindow.Close();
+            _timeUpWindow = null;
+        }
+
+        bool requiresBlockWindow = isBlocked;
 
         if (requiresBlockWindow && _blockWindow == null)
         {
@@ -108,6 +129,7 @@ public partial class MainWindow : Window
         _voiceService.Dispose();
 
         _blockWindow?.Close();
+        _timeUpWindow?.Close();
     }
 
 }

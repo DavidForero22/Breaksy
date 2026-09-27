@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Breaksy.Models;
 
 namespace Breaksy.Services;
 
@@ -17,6 +18,20 @@ public class SettingsService : INotifyPropertyChanged
             if (_isMuted != value)
             {
                 _isMuted = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private InterruptionLevel _interruptionLevel = InterruptionLevel.Intermediate;
+    public InterruptionLevel InterruptionLevel
+    {
+        get => _interruptionLevel;
+        set
+        {
+            if (_interruptionLevel != value)
+            {
+                _interruptionLevel = value;
                 OnPropertyChanged();
             }
         }

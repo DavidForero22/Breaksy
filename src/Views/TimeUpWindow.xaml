@@ -1,0 +1,41 @@
+<Window x:Class="Breaksy.Views.TimeUpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="¡Se acabó el tiempo!"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        ShowActivated="False">
+
+    <Border Background="#2D2D30"
+            CornerRadius="12"
+            Margin="20"
+            BorderBrush="#E53935"
+            BorderThickness="3">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="4"
+                              BlurRadius="20"
+                              Opacity="0.6"/>
+        </Border.Effect>
+
+        <StackPanel Margin="40,30"
+                    Width="420">
+            <TextBlock Text="⏰ ¡Se acabó el tiempo!"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#E53935"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,15"/>
+            <TextBlock x:Name="MessageText"
+                       FontSize="16"
+                       Foreground="White"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+        </StackPanel>
+    </Border>
+</Window>
