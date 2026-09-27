@@ -11,7 +11,8 @@ namespace Breaksy.Services;
 /// </summary>
 public class UpdateService : INotifyPropertyChanged, IDisposable
 {
-    private const string RepositoryUrl = "https://github.com/DavidForero22/Breaksy";
+    public const string RepositoryUrl = "https://github.com/DavidForero22/Breaksy";
+    public const string ReleasesUrl = RepositoryUrl + "/releases";
     private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(6);
 
     private readonly UpdateManager _manager;

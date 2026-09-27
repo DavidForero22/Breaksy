@@ -75,6 +75,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public ICommand InstallUpdateCommand { get; }
     public ICommand OpenCustomizationGuideCommand { get; }
     public ICommand OpenCustomizationFolderCommand { get; }
+    public ICommand OpenReleaseHistoryCommand { get; }
     public string CustomizationFolder => AssetPaths.UserRoot;
 
     public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine, UpdateService updates)
@@ -86,6 +87,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());
         OpenCustomizationGuideCommand = new RelayCommand(_ => OpenCustomizationGuide());
         OpenCustomizationFolderCommand = new RelayCommand(_ => OpenCustomizationFolder());
+        OpenReleaseHistoryCommand = new RelayCommand(_ => OpenReleaseHistory());
 
         _settings.PropertyChanged += (s, e) =>
         {
@@ -110,6 +112,21 @@ public class SettingsViewModel : INotifyPropertyChanged
     }
 
     private const string CustomizationGuideFileName = "Guía de Personalización Breaksy.pdf";
+
+    private static void OpenReleaseHistory()
+    {
+        try
+        {
+            // Abre la página de releases de GitHub en el navegador predeterminado
+            Process.Start(new ProcessStartInfo(UpdateService.ReleasesUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Log($"[Settings] ERROR al abrir el historial de versiones: {ex.Message}");
+            System.Windows.MessageBox.Show($"No se pudo abrir el navegador:\n\n{ex.Message}\n\n{UpdateService.ReleasesUrl}",
+                "Breaksy", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+        }
+    }
 
     private static void OpenCustomizationFolder()
     {
