@@ -29,5 +29,23 @@ public partial class DebugConsoleWindow : Window
         });
     }
 
+    private async void OnCopyClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Clipboard.SetText(LogText.Text);
+            CopyButton.Content = "¡Copiado!";
+        }
+        catch (Exception ex)
+        {
+            // El portapapeles puede estar bloqueado momentáneamente por otra aplicación
+            LogService.Log($"[DebugConsole] ERROR al copiar al portapapeles: {ex.Message}");
+            CopyButton.Content = "Error al copiar";
+        }
+
+        await Task.Delay(1500);
+        CopyButton.Content = "Copiar todo";
+    }
+
     private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
 }

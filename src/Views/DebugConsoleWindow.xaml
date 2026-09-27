@@ -31,12 +31,24 @@
                    VerticalAlignment="Center"
                    Margin="16,0,0,0"/>
 
-        <Button Content="&#xE8BB;"
-                Style="{StaticResource TitleBarButton}"
-                Click="OnCloseClick"
-                ToolTip="Cerrar"
-                HorizontalAlignment="Right"
-                WindowChrome.IsHitTestVisibleInChrome="True"/>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button x:Name="CopyButton"
+                    Content="Copiar todo"
+                    Style="{StaticResource SecondaryButton}"
+                    Click="OnCopyClick"
+                    ToolTip="Copiar todos los registros al portapapeles"
+                    FontSize="11"
+                    Padding="10,3"
+                    VerticalAlignment="Center"
+                    Margin="0,0,8,0"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+            <Button Content="&#xE8BB;"
+                    Style="{StaticResource TitleBarButton}"
+                    Click="OnCloseClick"
+                    ToolTip="Cerrar"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+        </StackPanel>
 
         <TextBox x:Name="LogText"
                  Grid.Row="1"

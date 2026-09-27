@@ -258,13 +258,14 @@
 
     <!-- Navegación lateral (TabControl con pestañas a la izquierda) -->
     <Style x:Key="SidebarTabItem" TargetType="TabItem">
-        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Foreground" Value="{StaticResource SubtleTextBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
+                    <!-- Cursor solo en la cabecera: en el TabItem se heredaría a todo el contenido de la página -->
                     <Border x:Name="Bg"
+                            Cursor="Hand"
                             CornerRadius="6"
                             Padding="12,8"
                             Margin="0,1"

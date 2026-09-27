@@ -12,7 +12,7 @@ public class BreaksyStateMachine : IDisposable
 public TimeSpan NormalDuration { get; set; } = TimeSpan.FromMinutes(20);
     public TimeSpan ExtensionDuration { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan WarningDuration { get; set; } = TimeSpan.FromMinutes(1);
-    public TimeSpan SleepDuration { get; set; } = TimeSpan.FromSeconds(10);
+    public TimeSpan SleepDuration { get; set; } = TimeSpan.FromSeconds(35);
     private readonly DispatcherTimer _timer;
     private BreaksyState _stateBeforePause;
 
