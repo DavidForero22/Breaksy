@@ -89,8 +89,8 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 ## Fase 7 — Assets finales
 
 - [X] Ilustraciones por defecto del personaje en `assets/personaje/` para cada estado (`disabled`, `idle`, `awaken`, `paused`, `warning`, `serious_warning`, `blocked_1`, `blocked_2`, `sleeping`, `waiting`).
-- [ ] Líneas de audio por defecto procesadas en `assets/voces/` (`generico`, `avisos`, `avisos_serios`, `bloqueado_1`, `bloqueado_2`, `despertar`).
-- [ ] Reemplazo de placeholders gráficos y de sonido por los recursos definitivos.
+- [X] Líneas de audio por defecto procesadas en `assets/voces/` (`generico`, `avisos`, `avisos_serios`, `bloqueado_1`, `bloqueado_2`, `despertar`).
+- [X] Reemplazo de placeholders gráficos y de sonido por los recursos definitivos.
 
 ---
 
