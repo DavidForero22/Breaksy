@@ -11,6 +11,7 @@ public partial class MainWindow : Window
     private readonly KeyboardHookService _keyboardHook = new();
     private readonly SettingsService _settingsService = new();
     private readonly VoiceService _voiceService;
+    private readonly TrayIconService _trayIcon;
 
     private MainViewModel? _viewModel;
     private BlockWindow? _blockWindow;
@@ -27,6 +28,8 @@ public partial class MainWindow : Window
         _viewModel = new MainViewModel(_stateMachine, _settingsService, OpenSettingsWindow, Close);
         DataContext = _viewModel;
 
+        _trayIcon = new TrayIconService(_viewModel, ShowCharacter);
+
         _stateMachine.StateChanged += OnStateChanged;
 
         _settingsService.PropertyChanged += OnSettingsChanged;
@@ -36,6 +39,14 @@ public partial class MainWindow : Window
         Closed += OnClosed;
     }
 
+
+    private void ShowCharacter()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        Activate();
+    }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -148,6 +159,7 @@ public partial class MainWindow : Window
         _stateMachine.Dispose();
         _keyboardHook.Dispose();
         _voiceService.Dispose();
+        _trayIcon.Dispose();
 
         _blockWindow?.Close();
         _timeUpWindow?.Close();
