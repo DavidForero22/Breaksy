@@ -96,6 +96,19 @@ try {
         $env:GH_TOKEN = $token
         gh release upload "v$Version" $setupZip --repo $repoUrl --clobber
         if ($LASTEXITCODE) { throw 'No se pudo subir Breaksy-win-Setup.zip a la release.' }
+
+        # El .exe suelto duplica al .zip y confunde en la página de la release
+        Write-Host "==> Quitando Breaksy-win-Setup.exe suelto de la release" -ForegroundColor Cyan
+        gh release delete-asset "v$Version" 'Breaksy-win-Setup.exe' --repo $repoUrl --yes
+        if ($LASTEXITCODE) { Write-Warning 'No se pudo quitar Breaksy-win-Setup.exe de la release.' }
+
+        # Notas con los enlaces de descarga, a partir de la plantilla scripts/release-notes.md
+        Write-Host "==> Añadiendo notas de descarga a la release" -ForegroundColor Cyan
+        $notes = (Get-Content (Join-Path $PSScriptRoot 'release-notes.md') -Raw -Encoding UTF8).Replace('{{VERSION}}', $Version)
+        $notesFile = Join-Path $releasesDir 'release-notes.md'
+        [IO.File]::WriteAllText($notesFile, $notes, [Text.UTF8Encoding]::new($false))
+        gh release edit "v$Version" --repo $repoUrl --notes-file $notesFile
+        if ($LASTEXITCODE) { Write-Warning 'No se pudieron añadir las notas a la release.' }
     }
 
     Write-Host ""

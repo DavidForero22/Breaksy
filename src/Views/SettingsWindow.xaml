@@ -171,7 +171,17 @@
             <TabItem Header="Personalización">
                 <StackPanel>
                     <TextBlock Text="Personalización" Style="{StaticResource PageTitle}"/>
-                    <TextBlock Text="Próximamente." Style="{StaticResource PageSubtitle}"/>
+                    <TextBlock Text="Cambia las imágenes del personaje y sus voces."
+                               Style="{StaticResource PageSubtitle}"/>
+
+                    <TextBlock Text="Guía de personalización" Style="{StaticResource OptionTitle}"/>
+                    <TextBlock Text="Explica qué imágenes y voces puedes sustituir y en qué momento aparece cada una."
+                               Style="{StaticResource OptionDescription}"
+                               Margin="0,3,0,12"/>
+                    <Button Content="Abrir guía (PDF)"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding OpenCustomizationGuideCommand}"
+                            HorizontalAlignment="Left"/>
                 </StackPanel>
             </TabItem>
 

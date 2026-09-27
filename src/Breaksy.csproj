@@ -26,6 +26,10 @@
     <Content Include="..\assets\**\*.*" Link="assets\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- Guía para el usuario: se distribuye junto al ejecutable (instalador y portable) -->
+    <Content Include="..\docs\Guía de Personalización Breaksy.pdf" Link="Guía de Personalización Breaksy.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

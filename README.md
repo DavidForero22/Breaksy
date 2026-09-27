@@ -77,7 +77,17 @@ Breaksy/
 - **Motivo de la elección**: el requisito de bloquear el teclado a nivel de sistema requiere un hook de bajo nivel de Windows (`WH_KEYBOARD_LL`), al que C# accede de forma nativa vía P/Invoke. WPF permite ventanas *always-on-top* sin decoración de forma sencilla, y `System.Speech.Synthesis` cubre la síntesis de voz sin dependencias externas.
 - **Alcance de plataforma**: Windows únicamente (de momento).
 
-## Instalación
+## Descarga
+
+**[⬇ Descargar Breaksy para Windows](https://github.com/DavidForero22/Breaksy/releases/latest/download/Breaksy-win-Setup.zip)** (última versión)
+
+Descomprime el `.zip` y ejecuta `Breaksy-win-Setup.exe`. La app se actualiza sola cuando se publica una versión nueva.
+
+¿Prefieres no instalar nada? Descarga la [versión portable](https://github.com/DavidForero22/Breaksy/releases/latest/download/Breaksy-win-Portable.zip) (no se actualiza automáticamente).
+
+> Windows puede mostrar *"Windows protegió su PC"* porque el instalador no está firmado: pulsa **Más información → Ejecutar de todas formas**.
+
+## Instalación desde el código fuente
 
 ### Requisitos
 

@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Breaksy.Models;
@@ -59,6 +61,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public UpdateService Updates { get; }
     public ICommand CheckUpdatesCommand { get; }
     public ICommand InstallUpdateCommand { get; }
+    public ICommand OpenCustomizationGuideCommand { get; }
 
     public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine, UpdateService updates)
     {
@@ -67,6 +70,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         Updates = updates;
         CheckUpdatesCommand = new RelayCommand(async _ => await Updates.CheckAsync());
         InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());
+        OpenCustomizationGuideCommand = new RelayCommand(_ => OpenCustomizationGuide());
 
         _settings.PropertyChanged += (s, e) =>
         {
@@ -88,6 +92,32 @@ public class SettingsViewModel : INotifyPropertyChanged
             if (e.PropertyName == nameof(SettingsService.InterruptionLevel))
                 OnPropertyChanged(nameof(SelectedInterruptionLevel));
         };
+    }
+
+    private const string CustomizationGuideFileName = "Guía de Personalización Breaksy.pdf";
+
+    private static void OpenCustomizationGuide()
+    {
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CustomizationGuideFileName);
+        if (!File.Exists(path))
+        {
+            LogService.Log($"[Settings] No se encontró la guía de personalización en '{path}'.");
+            System.Windows.MessageBox.Show("No se ha encontrado la guía de personalización junto a la aplicación.",
+                "Breaksy", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            // Abre el PDF con el visor predeterminado del sistema
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Log($"[Settings] ERROR al abrir la guía de personalización: {ex.Message}");
+            System.Windows.MessageBox.Show($"No se pudo abrir la guía de personalización:\n\n{ex.Message}",
+                "Breaksy", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
