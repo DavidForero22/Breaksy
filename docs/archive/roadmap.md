@@ -97,8 +97,8 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 ## Fase 8 — Pulido y configuración
 
 - [ ] Persistencia de alguna preferencia básica si hace falta (p. ej. recordar posición en pantalla si hay varios monitores).
-- [ ] Icono de la app y bandeja del sistema (system tray) para poder desactivar/activar sin tener que hacer click sobre el personaje si está minimizado o difícil de alcanzar.
-- [ ] Manejo de errores: qué pasa si el hook de teclado falla al registrarse (p. ej. permisos insuficientes) — la app no debería arrancar en un estado roto sin avisar.
+- [X] Icono de la app y bandeja del sistema (system tray) para poder desactivar/activar sin tener que hacer click sobre el personaje si está minimizado o difícil de alcanzar.
+- [X] Manejo de errores: qué pasa si el hook de teclado falla al registrarse (p. ej. permisos insuficientes) — la app no debería arrancar en un estado roto sin avisar.
 - [ ] Arranque automático con Windows (opcional, a valorar si tiene sentido para tu caso de uso).
 
 ---

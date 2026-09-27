@@ -45,6 +45,35 @@ public class KeyboardHookService : IDisposable
         }
     }
 
+    // Igual que Start, pero sin lanzar: devuelve false y guarda el motivo en LastError.
+    public bool TryStart()
+    {
+        try
+        {
+            Start();
+            LastError = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            LogService.Log($"[KeyboardHookService] ERROR al registrar el hook de teclado: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Motivo del último fallo de TryStart, o null si el último intento funcionó.</summary>
+    public string? LastError { get; private set; }
+
+    // Comprueba que Windows permite registrar el hook, sin dejarlo instalado.
+    public bool CheckAvailability()
+    {
+        if (_hookId != IntPtr.Zero) return true;
+        if (!TryStart()) return false;
+        Stop();
+        return true;
+    }
+
     // Libera el hook. Llamarlo varias veces no da error.
     public void Stop()
     {

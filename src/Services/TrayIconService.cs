@@ -88,6 +88,11 @@ public class TrayIconService : IDisposable
         _notifyIcon.Text = text.Length > 63 ? text[..63] : text;
     }
 
+    public void ShowWarning(string title, string message)
+    {
+        _notifyIcon.ShowBalloonTip(5000, title, message, ToolTipIcon.Warning);
+    }
+
     public void Dispose()
     {
         _viewModel.PropertyChanged -= OnViewModelPropertyChanged;

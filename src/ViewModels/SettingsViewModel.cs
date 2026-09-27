@@ -33,6 +33,8 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => _settings.IsMuted = value;
     }
 
+    public bool IsKeyboardBlockUnavailable => !_settings.IsKeyboardBlockAvailable;
+
     public bool ShowState
     {
         get => _settings.ShowState;
@@ -62,6 +64,9 @@ public class SettingsViewModel : INotifyPropertyChanged
         {
             if (e.PropertyName == nameof(SettingsService.IsMuted))
                 OnPropertyChanged(nameof(IsMuted));
+
+            if (e.PropertyName == nameof(SettingsService.IsKeyboardBlockAvailable))
+                OnPropertyChanged(nameof(IsKeyboardBlockUnavailable));
 
             if (e.PropertyName == nameof(SettingsService.ShowState))
                 OnPropertyChanged(nameof(ShowState));

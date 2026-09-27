@@ -104,6 +104,29 @@
                     <TextBlock Text="{Binding SelectedInterruptionLevel.Description}"
                                Style="{StaticResource OptionDescription}"
                                Margin="0,8,0,0"/>
+
+                    <!-- Aviso si Windows no permitió registrar el hook de teclado -->
+                    <Border Background="#33F23F43"
+                            BorderBrush="{StaticResource DangerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="12,8"
+                            Margin="0,12,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardBlockUnavailable}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="⚠ El bloqueo de teclado no está disponible en este equipo. Los niveles Intermedio y Estricto funcionarán sin bloquear el teclado. Consulta la consola de depuración para ver el motivo."
+                                   Style="{StaticResource OptionDescription}"
+                                   Foreground="{StaticResource TextBrush}"
+                                   Margin="0"/>
+                    </Border>
                 </StackPanel>
             </TabItem>
 

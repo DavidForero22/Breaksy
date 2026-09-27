@@ -36,7 +36,26 @@ public partial class MainWindow : Window
         UpdateDebugConsole();
 
         Loaded += OnLoaded;
+        ContentRendered += (_, _) => CheckKeyboardHook();
         Closed += OnClosed;
+    }
+
+    // Comprueba al arrancar que el hook de teclado se puede registrar, para avisar antes del primer bloqueo
+    private void CheckKeyboardHook()
+    {
+        if (_keyboardHook.CheckAvailability()) return;
+
+        _settingsService.IsKeyboardBlockAvailable = false;
+        MessageBox.Show(
+            this,
+            "Windows no ha permitido registrar el bloqueo de teclado.\n\n" +
+            $"Detalle: {_keyboardHook.LastError}\n\n" +
+            "Breaksy seguirá funcionando (avisos, voces y ventanas de bloqueo), " +
+            "pero el teclado no se bloqueará durante los descansos.\n\n" +
+            "Prueba a reiniciar la aplicación o a ejecutarla con los mismos permisos que tus otras aplicaciones.",
+            "Breaksy - Bloqueo de teclado no disponible",
+            MessageBoxButton.OK,
+            MessageBoxImage.Warning);
     }
 
 
@@ -71,10 +90,17 @@ public partial class MainWindow : Window
         // Bloqueo de teclado: solo en nivel Intermedio o superior
         bool requiresKeyboardBlock = level >= InterruptionLevel.Intermediate
             && (isBlocked || e.NewState == BreaksyState.Sleeping);
-        if (requiresKeyboardBlock)
+        if (requiresKeyboardBlock && _settingsService.IsKeyboardBlockAvailable)
         {
             _keyboardHook.SuppressKeys = true;
-            _keyboardHook.Start();
+            if (!_keyboardHook.TryStart())
+            {
+                // El resto del ciclo (voces, ventanas de bloqueo) sigue funcionando sin teclado bloqueado
+                _keyboardHook.SuppressKeys = false;
+                _settingsService.IsKeyboardBlockAvailable = false;
+                _trayIcon.ShowWarning("Breaksy: bloqueo de teclado no disponible",
+                    "No se pudo bloquear el teclado. El descanso continúa sin bloqueo.");
+            }
         }
         else
         {

@@ -65,6 +65,22 @@ public class SettingsService : INotifyPropertyChanged
         }
     }
 
+    // No es una preferencia del usuario: indica si el bloqueo de teclado funciona en este equipo.
+    // Se expone aquí para que la configuración pueda avisar cuando no está disponible.
+    private bool _isKeyboardBlockAvailable = true;
+    public bool IsKeyboardBlockAvailable
+    {
+        get => _isKeyboardBlockAvailable;
+        set
+        {
+            if (_isKeyboardBlockAvailable != value)
+            {
+                _isKeyboardBlockAvailable = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     private bool _isDebugConsoleEnabled = false;
     public bool IsDebugConsoleEnabled
     {
