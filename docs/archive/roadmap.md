@@ -99,13 +99,13 @@ Esta es la parte más importante de todo el proyecto: si esto está bien hecho, 
 - [ ] Persistencia de alguna preferencia básica si hace falta (p. ej. recordar posición en pantalla si hay varios monitores).
 - [X] Icono de la app y bandeja del sistema (system tray) para poder desactivar/activar sin tener que hacer click sobre el personaje si está minimizado o difícil de alcanzar.
 - [X] Manejo de errores: qué pasa si el hook de teclado falla al registrarse (p. ej. permisos insuficientes) — la app no debería arrancar en un estado roto sin avisar.
-- [ ] Arranque automático con Windows (opcional, a valorar si tiene sentido para tu caso de uso).
+- [X] Arranque automático con Windows (opcional).
 
 ---
 
 ## Fase 9 — Empaquetado y publicación
 
-- [ ] Generar un ejecutable/instalador (o al menos un build self-contained de .NET) para no depender de tener el SDK instalado.
+- [X] Generar un ejecutable/instalador (o al menos un build self-contained de .NET) para no depender de tener el SDK instalado.
 - [ ] Rellenar en el README los apartados técnicos que quedaron pendientes ("se documentará más adelante").
 - [ ] Decidir y añadir la licencia (según lo hablado: código en GPLv3, assets con licencia separada si se quiere más control sobre el arte).
 - [ ] Si se decide abrir el repositorio: añadir guía de contribución básica (`CONTRIBUTING.md`) y dejar claro en el README que es un proyecto personal sin soporte garantizado.
