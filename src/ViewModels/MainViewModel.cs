@@ -10,6 +10,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly BreaksyStateMachine _stateMachine;
     private readonly CharacterImageService _imageService;
+    private readonly SettingsService _settings;
     private readonly Action _closeAction;
 
     private string _imagePath = string.Empty;
@@ -39,10 +40,16 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand OpenSettingsCommand { get; }
     public ICommand CloseCommand { get; }
 
-    public MainViewModel(BreaksyStateMachine stateMachine, Action openSettingsAction, Action closeAction)
+    public bool ShowState => _settings.ShowState;
+    public bool ShowTimer => _settings.ShowTimer;
+
+    public MainViewModel(BreaksyStateMachine stateMachine, SettingsService settings, Action openSettingsAction, Action closeAction)
     {
         _stateMachine = stateMachine;
+        _settings = settings;
         _closeAction = closeAction;
+
+        _settings.PropertyChanged += OnSettingsChanged;
 
         _imageService = new CharacterImageService();
 
@@ -56,6 +63,15 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _stateMachine.Tick += OnTick;
 
         UpdateVisuals(_stateMachine.CurrentState);
+    }
+
+    private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsService.ShowState))
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowState)));
+
+        if (e.PropertyName == nameof(SettingsService.ShowTimer))
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowTimer)));
     }
 
     private void TogglePause()
@@ -96,6 +112,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnTick;
+        _settings.PropertyChanged -= OnSettingsChanged;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

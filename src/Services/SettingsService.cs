@@ -37,7 +37,35 @@ public class SettingsService : INotifyPropertyChanged
         }
     }
 
-    private bool _isDebugConsoleEnabled = true;
+    private bool _showState = true;
+    public bool ShowState
+    {
+        get => _showState;
+        set
+        {
+            if (_showState != value)
+            {
+                _showState = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _showTimer = true;
+    public bool ShowTimer
+    {
+        get => _showTimer;
+        set
+        {
+            if (_showTimer != value)
+            {
+                _showTimer = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _isDebugConsoleEnabled = false;
     public bool IsDebugConsoleEnabled
     {
         get => _isDebugConsoleEnabled;

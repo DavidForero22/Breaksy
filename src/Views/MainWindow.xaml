@@ -12,6 +12,10 @@
         AllowsTransparency="True"
         Background="Transparent">
 
+        <Window.Resources>
+                <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        </Window.Resources>
+
         <Grid Background="Transparent">
 
                 <Grid.ContextMenu>
@@ -65,6 +69,7 @@
                 <StackPanel VerticalAlignment="Bottom"
                                 Margin="0,0,0,5">
                         <TextBlock Text="{Binding StateText}"
+                                   Visibility="{Binding ShowState, Converter={StaticResource BoolToVis}}"
                                    Foreground="#4FC3F7"
                                    FontSize="11"
                                    FontWeight="Bold"
@@ -80,6 +85,18 @@
                                    FontSize="16"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Center">
+                                <!-- Hidden (no Collapsed) para que el estado no cambie de sitio al ocultar el temporizador -->
+                                <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ShowTimer}"
+                                                                     Value="False">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Hidden"/>
+                                                        </DataTrigger>
+                                                </Style.Triggers>
+                                        </Style>
+                                </TextBlock.Style>
                                 <TextBlock.Effect>
                                         <DropShadowEffect ShadowDepth="1"
                                                         BlurRadius="2"

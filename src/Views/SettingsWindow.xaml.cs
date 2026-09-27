@@ -10,4 +10,6 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         DataContext = viewModel;
     }
+
+    private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
 }

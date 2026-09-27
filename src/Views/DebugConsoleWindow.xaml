@@ -1,0 +1,54 @@
+<Window x:Class="Breaksy.Views.DebugConsoleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Consola de depuración - Breaksy"
+        Width="920"
+        Height="400"
+        MinWidth="400"
+        MinHeight="200"
+        WindowStyle="None"
+        Background="{StaticResource SidebarBrush}"
+        FontFamily="{StaticResource UiFont}"
+        Foreground="{StaticResource TextBrush}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="CONSOLA DE DEPURACIÓN"
+                   FontSize="11"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource AccentBrush}"
+                   VerticalAlignment="Center"
+                   Margin="16,0,0,0"/>
+
+        <Button Content="&#xE8BB;"
+                Style="{StaticResource TitleBarButton}"
+                Click="OnCloseClick"
+                ToolTip="Cerrar"
+                HorizontalAlignment="Right"
+                WindowChrome.IsHitTestVisibleInChrome="True"/>
+
+        <TextBox x:Name="LogText"
+                 Grid.Row="1"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 Background="{StaticResource ContentBrush}"
+                 Foreground="{StaticResource MutedTextBrush}"
+                 SelectionBrush="{StaticResource AccentBrush}"
+                 BorderThickness="0"
+                 Padding="12,8"
+                 FontFamily="{StaticResource MonoFont}"
+                 FontSize="12"/>
+    </Grid>
+</Window>

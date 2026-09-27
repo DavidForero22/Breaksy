@@ -2,7 +2,6 @@ using System.Windows;
 using Breaksy.Models;
 using Breaksy.Services;
 using Breaksy.ViewModels;
-using Breaksy.Native;
 
 namespace Breaksy.Views;
 
@@ -16,6 +15,8 @@ public partial class MainWindow : Window
     private MainViewModel? _viewModel;
     private BlockWindow? _blockWindow;
     private TimeUpWindow? _timeUpWindow;
+    private SettingsWindow? _settingsWindow;
+    private DebugConsoleWindow? _debugConsoleWindow;
 
     public MainWindow()
     {
@@ -23,13 +24,13 @@ public partial class MainWindow : Window
 
         _voiceService = new VoiceService(_stateMachine, _settingsService);
 
-        _viewModel = new MainViewModel(_stateMachine, OpenSettingsWindow, Close);
+        _viewModel = new MainViewModel(_stateMachine, _settingsService, OpenSettingsWindow, Close);
         DataContext = _viewModel;
 
         _stateMachine.StateChanged += OnStateChanged;
 
         _settingsService.PropertyChanged += OnSettingsChanged;
-        ConsoleInterop.SetConsoleVisibility(_settingsService.IsDebugConsoleEnabled);
+        UpdateDebugConsole();
 
         Loaded += OnLoaded;
         Closed += OnClosed;
@@ -47,7 +48,7 @@ public partial class MainWindow : Window
     {
         if (e.PropertyName == nameof(SettingsService.IsDebugConsoleEnabled))
         {
-            ConsoleInterop.SetConsoleVisibility(_settingsService.IsDebugConsoleEnabled);
+            UpdateDebugConsole();
         }
     }
 
@@ -103,19 +104,39 @@ public partial class MainWindow : Window
 
     private void OpenSettingsWindow()
     {
-        Action openTestMenu = () =>
+        // No modal y de instancia única, para poder usar la consola de depuración a la vez
+        if (_settingsWindow != null)
         {
-            var testViewModel = new TestMenuViewModel(_stateMachine);
-            var testWindow = new TestMenuWindow(testViewModel) { Owner = this };
-            testWindow.ShowDialog();
-        };
+            _settingsWindow.Activate();
+            return;
+        }
 
-        var settingsViewModel = new SettingsViewModel(_settingsService, openTestMenu);
-        var settingsWindow = new SettingsWindow(settingsViewModel)
+        var settingsViewModel = new SettingsViewModel(_settingsService, _stateMachine);
+        _settingsWindow = new SettingsWindow(settingsViewModel)
         {
             Owner = this
         };
-        settingsWindow.ShowDialog();
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        _settingsWindow.Show();
+    }
+
+    private void UpdateDebugConsole()
+    {
+        if (_settingsService.IsDebugConsoleEnabled && _debugConsoleWindow == null)
+        {
+            _debugConsoleWindow = new DebugConsoleWindow();
+            // Cerrar la consola desde su propia X desactiva la opción en lugar de cerrar la app
+            _debugConsoleWindow.Closed += (_, _) =>
+            {
+                _debugConsoleWindow = null;
+                _settingsService.IsDebugConsoleEnabled = false;
+            };
+            _debugConsoleWindow.Show();
+        }
+        else if (!_settingsService.IsDebugConsoleEnabled && _debugConsoleWindow != null)
+        {
+            _debugConsoleWindow.Close();
+        }
     }
 
     private void OnClosed(object? sender, EventArgs e)
@@ -130,6 +151,8 @@ public partial class MainWindow : Window
 
         _blockWindow?.Close();
         _timeUpWindow?.Close();
+        _settingsWindow?.Close();
+        _debugConsoleWindow?.Close();
     }
 
 }

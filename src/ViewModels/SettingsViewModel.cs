@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Breaksy.Models;
 using Breaksy.Services;
 
@@ -34,23 +33,41 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => _settings.IsMuted = value;
     }
 
+    public bool ShowState
+    {
+        get => _settings.ShowState;
+        set => _settings.ShowState = value;
+    }
+
+    public bool ShowTimer
+    {
+        get => _settings.ShowTimer;
+        set => _settings.ShowTimer = value;
+    }
+
     public bool IsDebugConsoleEnabled
     {
         get => _settings.IsDebugConsoleEnabled;
         set => _settings.IsDebugConsoleEnabled = value;
     }
 
-    public ICommand OpenTestMenuCommand { get; }
+    public TestMenuViewModel TestMenu { get; }
 
-    public SettingsViewModel(SettingsService settings, Action openTestMenuAction)
+    public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine)
     {
         _settings = settings;
-        OpenTestMenuCommand = new RelayCommand(_ => openTestMenuAction());
+        TestMenu = new TestMenuViewModel(stateMachine);
 
         _settings.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(SettingsService.IsMuted))
                 OnPropertyChanged(nameof(IsMuted));
+
+            if (e.PropertyName == nameof(SettingsService.ShowState))
+                OnPropertyChanged(nameof(ShowState));
+
+            if (e.PropertyName == nameof(SettingsService.ShowTimer))
+                OnPropertyChanged(nameof(ShowTimer));
 
             if (e.PropertyName == nameof(SettingsService.IsDebugConsoleEnabled))
                 OnPropertyChanged(nameof(IsDebugConsoleEnabled));
