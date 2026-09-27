@@ -121,6 +121,42 @@ dotnet publish src/Breaksy.csproj -c Release -r win-x64 --self-contained true -o
 
 El resultado queda en la carpeta `publish/`; basta con copiarla y ejecutar `Breaksy.exe`.
 
+## Instalador y actualizaciones
+
+Breaksy se distribuye con [Velopack](https://velopack.io): un instalador que no requiere tener .NET instalado y que avisa al usuario cuando hay una versión nueva publicada en GitHub Releases.
+
+### Generar el instalador
+
+```bash
+powershell -ExecutionPolicy Bypass -File ./scripts/release.ps1
+```
+
+Usa la versión de `<Version>` en `src/Breaksy.csproj` (o `-Version 0.2.0`) y deja en `Releases/`:
+
+- `Breaksy-win-Setup.exe`: instalador (crea accesos directos en el escritorio y el menú Inicio).
+- `Breaksy-win-Portable.zip`: versión portable, sin instalación.
+- Paquetes `.nupkg` y metadatos que usa el sistema de actualizaciones.
+
+La herramienta `vpk` se instala automáticamente como herramienta local del repositorio (`.config/dotnet-tools.json`).
+
+### Publicar una versión
+
+1. Sube `<Version>` en `src/Breaksy.csproj` (SemVer: `0.2.0`, `0.2.1`...).
+2. Con sesión iniciada en [GitHub CLI](https://cli.github.com) (`gh auth login`), ejecuta:
+
+```bash
+powershell -ExecutionPolicy Bypass -File ./scripts/release.ps1 -Upload
+```
+
+Esto crea la release `vX.Y.Z` en GitHub con el instalador y los paquetes de actualización.
+
+### Cómo se actualiza la app
+
+- Al arrancar y cada 6 horas, Breaksy consulta GitHub Releases.
+- Si hay una versión nueva, muestra una notificación en la bandeja del sistema y añade **"Actualizar a la versión X"** a su menú.
+- En **Configuración → General** se ve la versión actual y se puede buscar e instalar la actualización. Al instalarla, la app se reinicia.
+- Al ejecutar desde Visual Studio o `dotnet run` no se buscan actualizaciones (solo funciona en la versión instalada).
+
 ## Estado del proyecto
 
 Fase 6 en progreso: realizar pruebas y verificar funcionamiento en un ciclo normal.

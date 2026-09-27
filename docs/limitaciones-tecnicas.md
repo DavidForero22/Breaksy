@@ -37,6 +37,12 @@ Por diseño, solo se bloquea el teclado: el ratón tiene que seguir funcionando 
 - Solo funciona en **Windows** (depende de WPF, WinForms para la bandeja y las APIs nativas de `user32.dll`).
 - Requiere **.NET 8** (o una publicación *self-contained*).
 
+## Instalador y actualizaciones
+
+- El instalador y el ejecutable **no están firmados**: Windows SmartScreen mostrará "Windows protegió su PC" la primera vez (*Más información → Ejecutar de todas formas*). Evitarlo requiere un certificado de firma de código.
+- Las actualizaciones se consultan en GitHub Releases **sin autenticación**: el repositorio tiene que ser público, y GitHub limita las consultas anónimas a 60 por hora e IP (más que suficiente con una comprobación cada 6 horas).
+- Instalar una actualización reinicia la aplicación, incluso si está en mitad de un bloqueo.
+
 ## Configuración
 
 - Las opciones **no se guardan en disco**: al reiniciar la aplicación vuelven a sus valores por defecto.

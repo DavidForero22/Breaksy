@@ -16,3 +16,7 @@ obj/
 # OS
 .DS_Store
 Thumbs.db
+
+# Publicación e instalador (scripts/release.ps1)
+publish/
+Releases/

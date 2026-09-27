@@ -11,6 +11,8 @@
     <RootNamespace>Breaksy</RootNamespace>
     <AssemblyName>Breaksy</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>Breaksy.Program</StartupObject>
+    <Version>0.1.0</Version>
     <ApplicationIcon>..\assets\icon\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -24,5 +26,9 @@
     <Content Include="..\assets\**\*.*" Link="assets\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.158" />
   </ItemGroup>
 </Project>

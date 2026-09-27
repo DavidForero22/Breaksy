@@ -27,7 +27,44 @@
             <TabItem Header="General">
                 <StackPanel>
                     <TextBlock Text="General" Style="{StaticResource PageTitle}"/>
-                    <TextBlock Text="Próximamente." Style="{StaticResource PageSubtitle}"/>
+                    <TextBlock Text="Información de la aplicación y actualizaciones."
+                               Style="{StaticResource PageSubtitle}"/>
+
+                    <TextBlock Text="VERSIÓN" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Style="{StaticResource OptionTitle}">
+                        <Run Text="Breaksy"/>
+                        <Run Text="{Binding Updates.CurrentVersion, Mode=OneWay}"/>
+                    </TextBlock>
+
+                    <Border Style="{StaticResource OptionDivider}"/>
+
+                    <TextBlock Text="ACTUALIZACIONES" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="{Binding Updates.Status}"
+                               Style="{StaticResource OptionDescription}"
+                               Margin="0,0,0,12"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Buscar actualizaciones"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding CheckUpdatesCommand}"
+                                IsEnabled="{Binding Updates.IsInstalled}"
+                                Margin="0,0,8,0"/>
+                        <Button Content="Actualizar y reiniciar"
+                                Command="{Binding InstallUpdateCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource AccentButton}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Updates.IsUpdateAvailable}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Updates.IsBusy}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
 

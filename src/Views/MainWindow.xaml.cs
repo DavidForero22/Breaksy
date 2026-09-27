@@ -12,6 +12,7 @@ public partial class MainWindow : Window
     private readonly SettingsService _settingsService = new();
     private readonly VoiceService _voiceService;
     private readonly TrayIconService _trayIcon;
+    private readonly UpdateService _updateService = new();
 
     private MainViewModel? _viewModel;
     private BlockWindow? _blockWindow;
@@ -28,7 +29,7 @@ public partial class MainWindow : Window
         _viewModel = new MainViewModel(_stateMachine, _settingsService, OpenSettingsWindow, Close);
         DataContext = _viewModel;
 
-        _trayIcon = new TrayIconService(_viewModel, ShowCharacter);
+        _trayIcon = new TrayIconService(_viewModel, _updateService, ShowCharacter);
 
         _stateMachine.StateChanged += OnStateChanged;
 
@@ -36,7 +37,11 @@ public partial class MainWindow : Window
         UpdateDebugConsole();
 
         Loaded += OnLoaded;
-        ContentRendered += (_, _) => CheckKeyboardHook();
+        ContentRendered += (_, _) =>
+        {
+            CheckKeyboardHook();
+            _updateService.StartPeriodicChecks();
+        };
         Closed += OnClosed;
     }
 
@@ -148,7 +153,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var settingsViewModel = new SettingsViewModel(_settingsService, _stateMachine);
+        var settingsViewModel = new SettingsViewModel(_settingsService, _stateMachine, _updateService);
         _settingsWindow = new SettingsWindow(settingsViewModel)
         {
             Owner = this
@@ -186,6 +191,7 @@ public partial class MainWindow : Window
         _keyboardHook.Dispose();
         _voiceService.Dispose();
         _trayIcon.Dispose();
+        _updateService.Dispose();
 
         _blockWindow?.Close();
         _timeUpWindow?.Close();

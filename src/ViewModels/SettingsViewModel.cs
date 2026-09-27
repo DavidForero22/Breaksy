@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Breaksy.Models;
 using Breaksy.Services;
 
@@ -55,10 +56,17 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     public TestMenuViewModel TestMenu { get; }
 
-    public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine)
+    public UpdateService Updates { get; }
+    public ICommand CheckUpdatesCommand { get; }
+    public ICommand InstallUpdateCommand { get; }
+
+    public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine, UpdateService updates)
     {
         _settings = settings;
         TestMenu = new TestMenuViewModel(stateMachine);
+        Updates = updates;
+        CheckUpdatesCommand = new RelayCommand(async _ => await Updates.CheckAsync());
+        InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());
 
         _settings.PropertyChanged += (s, e) =>
         {

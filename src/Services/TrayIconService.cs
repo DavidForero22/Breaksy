@@ -15,10 +15,14 @@ public class TrayIconService : IDisposable
 
     private readonly ToolStripMenuItem _toggleItem = new();
     private readonly ToolStripMenuItem _pauseItem = new();
+    private readonly ToolStripMenuItem _updateItem = new() { Visible = false };
 
-    public TrayIconService(MainViewModel viewModel, Action showCharacterAction)
+    private readonly UpdateService _updates;
+
+    public TrayIconService(MainViewModel viewModel, UpdateService updates, Action showCharacterAction)
     {
         _viewModel = viewModel;
+        _updates = updates;
 
         var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "icon", "icon.ico");
         var menu = new ContextMenuStrip();
@@ -28,7 +32,9 @@ public class TrayIconService : IDisposable
 
         _toggleItem.Click += (_, _) => ToggleActive();
         _pauseItem.Click += (_, _) => _viewModel.PauseCommand.Execute(null);
+        _updateItem.Click += async (_, _) => await _updates.DownloadAndRestartAsync();
 
+        menu.Items.Add(_updateItem);
         menu.Items.Add(showItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_toggleItem);
@@ -54,6 +60,12 @@ public class TrayIconService : IDisposable
         };
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        _updates.UpdateFound += OnUpdateFound;
+        // Al pulsar la notificación de actualización se abre la configuración (sección General)
+        _notifyIcon.BalloonTipClicked += (_, _) =>
+        {
+            if (_updates.IsUpdateAvailable) _viewModel.OpenSettingsCommand.Execute(null);
+        };
         UpdateTooltip();
     }
 
@@ -73,6 +85,10 @@ public class TrayIconService : IDisposable
 
         _pauseItem.Text = _viewModel.PauseMenuHeader;
         _pauseItem.Enabled = _viewModel.CanPause;
+
+        _updateItem.Visible = _updates.IsUpdateAvailable;
+        _updateItem.Enabled = !_updates.IsBusy;
+        _updateItem.Text = $"Actualizar a la versión {_updates.AvailableVersion}";
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -88,6 +104,13 @@ public class TrayIconService : IDisposable
         _notifyIcon.Text = text.Length > 63 ? text[..63] : text;
     }
 
+    private void OnUpdateFound(string version)
+    {
+        _notifyIcon.ShowBalloonTip(8000, "Breaksy: actualización disponible",
+            $"La versión {version} está lista para instalarse. Pulsa aquí para ver los detalles.",
+            ToolTipIcon.Info);
+    }
+
     public void ShowWarning(string title, string message)
     {
         _notifyIcon.ShowBalloonTip(5000, title, message, ToolTipIcon.Warning);
@@ -96,6 +119,7 @@ public class TrayIconService : IDisposable
     public void Dispose()
     {
         _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+        _updates.UpdateFound -= OnUpdateFound;
         _notifyIcon.Visible = false;
         _notifyIcon.Icon?.Dispose();
         _notifyIcon.ContextMenuStrip?.Dispose();
