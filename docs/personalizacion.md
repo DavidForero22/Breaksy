@@ -1,19 +1,25 @@
 # Guía de personalización
 
-Breaksy permite cambiar las imágenes del personaje y las voces que reproduce sin tocar el código. Basta con colocar archivos en las carpetas adecuadas dentro de `assets/` y volver a compilar (los assets se copian automáticamente junto al ejecutable).
+Breaksy permite cambiar las imágenes del personaje y las voces que reproduce sin tocar el código: basta con colocar archivos en la **carpeta de personalización**:
 
-> Si ya tienes la app compilada, también puedes editar directamente la carpeta `assets/` que hay junto a `Breaksy.exe`. Los cambios se aplican la próxima vez que el personaje cambie de estado.
+```
+%AppData%\Breaksy\assets\
+```
+
+La forma más fácil de llegar a ella es **Configuración → Personalización → Abrir carpeta**, que además crea todas las subcarpetas vacías para que veas dónde va cada archivo. Los cambios se aplican la próxima vez que el personaje cambie de estado.
+
+> Esta carpeta **no se toca al actualizar Breaksy**. No modifiques la carpeta `assets\` que hay junto a `Breaksy.exe` (los archivos de serie): se sustituye por completo en cada actualización.
 
 ## Cómo funciona
 
 - **Varias variantes por evento**: si una carpeta contiene varios archivos, se elige uno **al azar** cada vez. Así puedes añadir variedad (varias poses, varias frases) simplemente metiendo más archivos.
 - **El nombre del archivo no importa** dentro de una carpeta de estado/evento; solo importa la extensión.
-- **Fallback**: si una carpeta no existe o está vacía, se usa un archivo por defecto (ver cada sección).
-- Las carpetas se crean a mano: solo existen las de `fallback`/`random` en el repositorio.
+- **Prioridad**: para cada estado o evento, si tu carpeta tiene algún archivo se usan **solo los tuyos**; si está vacía, se usan los de serie. Los tuyos no se mezclan con los originales.
+- **Fallback**: si ni tu carpeta ni la de serie tienen archivos, se usa un archivo por defecto (ver cada sección). También puedes personalizar ese archivo por defecto creando la carpeta correspondiente en tu carpeta de personalización.
 
 ## Imágenes del personaje
 
-**Ruta:** `assets/character/<estado>/`
+**Ruta:** `%AppData%\Breaksy\assets\character\<estado>\`
 **Formatos:** `.png`, `.jpg`, `.jpeg`, `.gif` (se recomienda PNG con fondo transparente).
 **Tamaño:** la imagen se escala manteniendo la proporción dentro de una ventana de 140×180 px. Una imagen vertical con esas proporciones (por ejemplo 280×360 px) se verá mejor.
 
@@ -30,11 +36,11 @@ Breaksy permite cambiar las imágenes del personaje y las voces que reproduce si
 | `sleeping/` | Sleeping | Los 40 segundos de descanso tras pulsar "Descansar". |
 | `waiting/` | Waiting | Fin del descanso; el personaje espera un clic para empezar un nuevo ciclo. |
 
-**Fallback:** si la carpeta de un estado está vacía, se usa `assets/character/fallback/<estado>.<ext>` (por ejemplo `fallback/warning.png`). Si tampoco existe, se muestra un recuadro en blanco.
+**Fallback:** si la carpeta de un estado está vacía (tanto la tuya como la de serie), se usa `character\fallback\<estado>.<ext>` (por ejemplo `fallback/warning.png`). Si tampoco existe, se muestra un recuadro en blanco.
 
 ## Voces
 
-**Ruta:** `assets/voices/<evento>/`
+**Ruta:** `%AppData%\Breaksy\assets\voices\<evento>\`
 **Formatos:** `.mp3`, `.wav`.
 Las voces no suenan si está activada la opción de silenciar sonidos en la configuración.
 
@@ -77,12 +83,14 @@ Conviene que las frases de `serious_warning` suenen más impacientes que las de 
 | `blocked_2/1_min/` | Lleva 1 minuto en el bloqueo definitivo sin descansar. |
 | `blocked_2/5_min/` | Lleva 5 minutos en el bloqueo definitivo. |
 
-**Fallback:** si la carpeta de un evento está vacía, se reproduce `assets/voices/random/fallback.mp3` (o `fallback.wav`). Si tampoco existe, no suena nada.
+**Fallback:** si la carpeta de un evento está vacía (tanto la tuya como la de serie), se reproduce `voices\random\fallback.mp3` (o `fallback.wav`). Si tampoco existe, no suena nada.
 
 ## Estructura completa de ejemplo
 
+Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `random`, que puedes añadir tú si quieres cambiar los archivos por defecto):
+
 ```
-assets/
+%AppData%\Breaksy\assets\
 ├── character/
 │   ├── fallback/          # Imágenes por defecto: <estado>.png
 │   ├── disabled/

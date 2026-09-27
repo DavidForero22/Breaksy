@@ -30,6 +30,25 @@
                     <TextBlock Text="Información de la aplicación y actualizaciones."
                                Style="{StaticResource PageSubtitle}"/>
 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Iniciar con Windows" Style="{StaticResource OptionTitle}"/>
+                            <TextBlock Text="Abre Breaksy automáticamente al iniciar sesión."
+                                       Style="{StaticResource OptionDescription}"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Style="{StaticResource ToggleSwitch}"
+                                  IsChecked="{Binding StartWithWindows}"
+                                  VerticalAlignment="Center"
+                                  Margin="16,0,0,0"/>
+                    </Grid>
+
+                    <Border Style="{StaticResource OptionDivider}"/>
+
                     <TextBlock Text="VERSIÓN" Style="{StaticResource SectionLabel}"/>
                     <TextBlock Style="{StaticResource OptionTitle}">
                         <Run Text="Breaksy"/>
@@ -181,6 +200,23 @@
                     <Button Content="Abrir guía (PDF)"
                             Style="{StaticResource SecondaryButton}"
                             Command="{Binding OpenCustomizationGuideCommand}"
+                            HorizontalAlignment="Left"/>
+
+                    <Border Style="{StaticResource OptionDivider}"/>
+
+                    <TextBlock Text="Carpeta de personalización" Style="{StaticResource OptionTitle}"/>
+                    <TextBlock Text="Coloca aquí tus imágenes y voces. Tienen prioridad sobre las de serie y se conservan al actualizar Breaksy."
+                               Style="{StaticResource OptionDescription}"
+                               Margin="0,3,0,6"/>
+                    <TextBlock Text="{Binding CustomizationFolder, Mode=OneWay}"
+                               FontFamily="{StaticResource MonoFont}"
+                               FontSize="12"
+                               Foreground="{StaticResource SubtleTextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"/>
+                    <Button Content="Abrir carpeta"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding OpenCustomizationFolderCommand}"
                             HorizontalAlignment="Left"/>
                 </StackPanel>
             </TabItem>

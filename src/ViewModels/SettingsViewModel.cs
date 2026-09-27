@@ -36,6 +36,18 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => _settings.IsMuted = value;
     }
 
+    // Se guarda en el registro de Windows, no en SettingsService, para que el instalador pueda activarlo
+    public bool StartWithWindows
+    {
+        get => StartupService.IsEnabled;
+        set
+        {
+            StartupService.SetEnabled(value);
+            // Relee el valor real por si no se pudo cambiar
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsKeyboardBlockUnavailable => !_settings.IsKeyboardBlockAvailable;
 
     public bool ShowState
@@ -62,6 +74,8 @@ public class SettingsViewModel : INotifyPropertyChanged
     public ICommand CheckUpdatesCommand { get; }
     public ICommand InstallUpdateCommand { get; }
     public ICommand OpenCustomizationGuideCommand { get; }
+    public ICommand OpenCustomizationFolderCommand { get; }
+    public string CustomizationFolder => AssetPaths.UserRoot;
 
     public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine, UpdateService updates)
     {
@@ -71,6 +85,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         CheckUpdatesCommand = new RelayCommand(async _ => await Updates.CheckAsync());
         InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());
         OpenCustomizationGuideCommand = new RelayCommand(_ => OpenCustomizationGuide());
+        OpenCustomizationFolderCommand = new RelayCommand(_ => OpenCustomizationFolder());
 
         _settings.PropertyChanged += (s, e) =>
         {
@@ -95,6 +110,22 @@ public class SettingsViewModel : INotifyPropertyChanged
     }
 
     private const string CustomizationGuideFileName = "Guía de Personalización Breaksy.pdf";
+
+    private static void OpenCustomizationFolder()
+    {
+        try
+        {
+            // Se crea con todas las subcarpetas para que el usuario vea dónde va cada archivo
+            AssetPaths.EnsureUserFolders();
+            Process.Start(new ProcessStartInfo(AssetPaths.UserRoot) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Log($"[Settings] ERROR al abrir la carpeta de personalización: {ex.Message}");
+            System.Windows.MessageBox.Show($"No se pudo abrir la carpeta de personalización:\n\n{ex.Message}",
+                "Breaksy", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+        }
+    }
 
     private static void OpenCustomizationGuide()
     {

@@ -15,7 +15,6 @@ public class VoiceService : IDisposable
     private readonly SettingsService _settings;
     private readonly MediaPlayer _mediaPlayer;
     private readonly DispatcherTimer _blockedTimer;
-    private readonly string _baseVoicePath;
     private readonly Random _random;
 
     private int _blockedSeconds = 0;
@@ -26,10 +25,6 @@ public class VoiceService : IDisposable
         _settings = settings;
         _mediaPlayer = new MediaPlayer();
         _random = new Random();
-
-        // La ruta asume que la carpeta 'assets' está junto al ejecutable. 
-        // Si estás ejecutando desde VS/VSCode, asegúrate de que los archivos se copian al output (Copy to Output Directory).
-        _baseVoicePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "voices");
 
         // Temporizador secundario exclusivo para contar el tiempo DENTRO de los bloqueos
         _blockedTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -122,31 +117,19 @@ public class VoiceService : IDisposable
     {
         if (_settings.IsMuted) return;
 
-        var fullPath = Path.Combine(_baseVoicePath, subCategoryPath);
-        string[] files = Array.Empty<string>();
-
-        // Intentar buscar en la carpeta específica del estado
-        if (Directory.Exists(fullPath))
-        {
-            files = Directory.GetFiles(fullPath, "*.*")
-                             .Where(f => f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
-                                         f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-                             .ToArray();
-        }
+        // Intentar buscar en la carpeta específica del estado (primero la del usuario, luego la de serie)
+        var files = AssetPaths.FindFiles(Path.Combine("voices", subCategoryPath), "*.*",
+            f => f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                 f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase));
 
         // Lógica de Fallback si la carpeta no existe o está vacía
         if (files.Length == 0)
         {
             LogService.Log($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
 
-            var fallbackDir = Path.Combine(_baseVoicePath, "random");
-            if (Directory.Exists(fallbackDir))
-            {
-                files = Directory.GetFiles(fallbackDir, "*.*")
-                                 .Where(f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) ||
-                                              f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase))
-                                 .ToArray();
-            }
+            files = AssetPaths.FindFiles(Path.Combine("voices", "random"), "*.*",
+                f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) ||
+                     f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase));
 
             // Si no se encuentra el archivo de fallback específico, abortar
             if (files.Length == 0)

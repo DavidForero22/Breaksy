@@ -83,7 +83,7 @@ Breaksy/
 
 Descomprime el `.zip` y ejecuta `Breaksy-win-Setup.exe`. La app se actualiza sola cuando se publica una versión nueva.
 
-¿Prefieres no instalar nada? Descarga la [versión portable](https://github.com/DavidForero22/Breaksy/releases/latest/download/Breaksy-win-Portable.zip) (no se actualiza automáticamente).
+¿Prefieres no instalar nada? Descarga la [versión portable](https://github.com/DavidForero22/Breaksy/releases/latest/download/Breaksy-win-Portable.zip) (también se actualiza automáticamente).
 
 > Windows puede mostrar *"Windows protegió su PC"* porque el instalador no está firmado: pulsa **Más información → Ejecutar de todas formas**.
 

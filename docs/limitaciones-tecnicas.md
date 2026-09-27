@@ -39,6 +39,7 @@ Por diseño, solo se bloquea el teclado: el ratón tiene que seguir funcionando 
 
 ## Instalador y actualizaciones
 
+- El instalador de Velopack es de un solo clic: **no permite elegir la carpeta de instalación** (siempre `%LocalAppData%\Breaksy`) y crea siempre los accesos directos del escritorio y del menú Inicio. El arranque con Windows no se ofrece en el instalador; se activa desde **Configuración → General** (desactivado por defecto).
 - El instalador y el ejecutable **no están firmados**: Windows SmartScreen mostrará "Windows protegió su PC" la primera vez (*Más información → Ejecutar de todas formas*). Evitarlo requiere un certificado de firma de código.
 - Las actualizaciones se consultan en GitHub Releases **sin autenticación**: el repositorio tiene que ser público, y GitHub limita las consultas anónimas a 60 por hora e IP (más que suficiente con una comprobación cada 6 horas).
 - Instalar una actualización reinicia la aplicación, incluso si está en mitad de un bloqueo.

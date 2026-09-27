@@ -12,14 +12,15 @@ namespace Breaksy.Services;
 public class CharacterImageService
 {
     private static readonly string[] SupportedExtensions = [".png", ".jpg", ".jpeg", ".gif"];
-    private readonly string _baseImagePath;
     private readonly Random _random;
 
     public CharacterImageService()
     {
         _random = new Random();
-        _baseImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "character");
     }
+
+    private static bool IsSupportedImage(string file) =>
+        SupportedExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Devuelve la ruta de una imagen al azar de la carpeta del estado.
@@ -42,16 +43,8 @@ public class CharacterImageService
             _ => "fallback"
         };
 
-        var targetDir = Path.Combine(_baseImagePath, stateKey);
-        string[] files = Array.Empty<string>();
-
-        // Buscar imágenes en la carpeta específica del estado
-        if (Directory.Exists(targetDir))
-        {
-            files = Directory.GetFiles(targetDir, "*.*")
-                             .Where(f => SupportedExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
-                             .ToArray();
-        }
+        // Buscar imágenes en la carpeta del estado (primero las del usuario, luego las de serie)
+        var files = AssetPaths.FindFiles(Path.Combine("character", stateKey), "*.*", IsSupportedImage);
 
         string chosenImagePath = string.Empty;
 
@@ -61,21 +54,11 @@ public class CharacterImageService
         }
         else
         {
-            // Buscar la plantilla con el nombre exacto del estado en fallback/
+            // Buscar la plantilla con el nombre exacto del estado en fallback/ (independientemente de la extensión)
             LogService.Log($"[CharacterImageService] No hay imágenes en '{stateKey}'. Buscando plantilla en fallback/{stateKey}...");
 
-            var fallbackDir = Path.Combine(_baseImagePath, "fallback");
-            if (Directory.Exists(fallbackDir))
-            {
-                // Buscar coincidencia exacta por nombre de estado (independientemente de la extensión)
-                var fallbackStateFile = Directory.GetFiles(fallbackDir, $"{stateKey}.*")
-                                                 .FirstOrDefault(f => SupportedExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase));
-
-                if (fallbackStateFile != null)
-                {
-                    chosenImagePath = fallbackStateFile;
-                }
-            }
+            chosenImagePath = AssetPaths.FindFiles(Path.Combine("character", "fallback"), $"{stateKey}.*", IsSupportedImage)
+                                        .FirstOrDefault() ?? string.Empty;
         }
 
         // Si no se encontró absolutamente ninguna imagen
