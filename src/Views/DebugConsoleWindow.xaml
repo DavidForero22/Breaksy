@@ -6,7 +6,7 @@
         Height="400"
         MinWidth="400"
         MinHeight="200"
-        WindowStyle="None"
+        WindowStyle="SingleBorderWindow"
         Background="{StaticResource SidebarBrush}"
         FontFamily="{StaticResource UiFont}"
         Foreground="{StaticResource TextBrush}">
@@ -42,6 +42,11 @@
                     Padding="10,3"
                     VerticalAlignment="Center"
                     Margin="0,0,8,0"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+            <Button Content="&#xE921;"
+                    Style="{StaticResource MinimizeButton}"
+                    Click="OnMinimizeClick"
+                    ToolTip="Minimizar"
                     WindowChrome.IsHitTestVisibleInChrome="True"/>
             <Button Content="&#xE8BB;"
                     Style="{StaticResource TitleBarButton}"

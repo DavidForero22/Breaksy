@@ -11,6 +11,7 @@ public partial class DebugConsoleWindow : Window
     public DebugConsoleWindow()
     {
         InitializeComponent();
+        Native.WindowAnimationHelper.Enable(this);
 
         foreach (var line in LogService.GetHistory())
             LogText.AppendText(line + Environment.NewLine);
@@ -46,6 +47,8 @@ public partial class DebugConsoleWindow : Window
         await Task.Delay(1500);
         CopyButton.Content = "Copiar todo";
     }
+
+    private void OnMinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
 }
