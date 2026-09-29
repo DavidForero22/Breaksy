@@ -12,10 +12,6 @@ Un personaje (mascota) que vive anclado en la esquina inferior derecha de la pan
 
 Al elegir descansar, el personaje duerme y bloquea el teclado durante 40 segundos. Al finalizar, pasa a un estado de espera activa aguardando un clic del usuario para reanudar el ciclo de trabajo.
 
-## Objetivo del proyecto
-
-Proyecto personal para uso propio, centrado en resolver un problema real de hábitos de trabajo. Sirve también como excusa para aprender C#/.NET y las APIs de Windows relacionadas con hooks de teclado, ventanas superpuestas y síntesis de voz.
-
 ## Diseño funcional
 
 ### Estados del personaje
@@ -166,7 +162,3 @@ Esto crea la release `vX.Y.Z` en GitHub con el instalador y los paquetes de actu
 - Si hay una versión nueva, muestra una notificación en la bandeja del sistema y añade **"Actualizar a la versión X"** a su menú.
 - En **Configuración → General** se ve la versión actual y se puede buscar e instalar la actualización. Al instalarla, la app se reinicia.
 - Al ejecutar desde Visual Studio o `dotnet run` no se buscan actualizaciones (solo funciona en la versión instalada).
-
-## Estado del proyecto
-
-Fase 6 en progreso: realizar pruebas y verificar funcionamiento en un ciclo normal.
