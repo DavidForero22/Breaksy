@@ -83,11 +83,11 @@ Conviene que las frases de `serious_warning` suenen más impacientes que las de 
 | `blocked_2/1_min/` | Lleva 1 minuto en el bloqueo definitivo sin descansar. |
 | `blocked_2/5_min/` | Lleva 5 minutos en el bloqueo definitivo. |
 
-**Fallback:** si la carpeta de un evento está vacía (tanto la tuya como la de serie), se reproduce `voices\random\fallback.mp3` (o `fallback.wav`). Si tampoco existe, no suena nada.
+**Fallback:** si la carpeta de un evento está vacía (tanto la tuya como la de serie), se reproduce `voices\system\fallback.mp3` (o `fallback.wav`). Si tampoco existe, no suena nada.
 
 ## Estructura completa de ejemplo
 
-Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `random`, que puedes añadir tú si quieres cambiar los archivos por defecto):
+Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `system`, que puedes añadir tú si quieres cambiar los archivos por defecto):
 
 ```
 %AppData%\Breaksy\assets\
@@ -104,7 +104,7 @@ Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `random`, que pu
 │   ├── sleeping/
 │   └── waiting/
 └── voices/
-    ├── random/            # fallback.mp3
+    ├── system/
     ├── awaken/
     │   ├── from_idle/
     │   ├── from_disabled/

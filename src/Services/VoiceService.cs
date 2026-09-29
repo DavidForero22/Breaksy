@@ -16,6 +16,8 @@ public class VoiceService : IDisposable
     private readonly MediaPlayer _mediaPlayer;
     private readonly DispatcherTimer _blockedTimer;
     private readonly Random _random;
+    private readonly MediaPlayer _alarmPlayer;
+    private bool _alarmActive;
 
     private int _blockedSeconds = 0;
 
@@ -25,6 +27,8 @@ public class VoiceService : IDisposable
         _settings = settings;
         _mediaPlayer = new MediaPlayer();
         _random = new Random();
+        _alarmPlayer = new MediaPlayer();
+        _alarmPlayer.MediaEnded += OnAlarmEnded;
 
         // Temporizador secundario exclusivo para contar el tiempo DENTRO de los bloqueos
         _blockedTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -36,6 +40,10 @@ public class VoiceService : IDisposable
 
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
     {
+        // La alarma suena mientras el personaje está en espera
+        if (e.OldState == BreaksyState.Waiting) StopWakeupAlarm();
+        if (e.NewState == BreaksyState.Waiting) StartWakeupAlarm();
+
         // Manejar temporizador de bloqueos
         if (e.NewState is BreaksyState.Blocked1 or BreaksyState.Blocked2)
         {
@@ -113,6 +121,41 @@ public class VoiceService : IDisposable
         }
     }
 
+    private void StartWakeupAlarm()
+    {
+        if (_settings.IsMuted) return;
+
+        var files = AssetPaths.FindFiles(Path.Combine("voices", "system"), "*.*",
+            f => Path.GetFileName(f).Equals("wakeup_alarm.wav", StringComparison.OrdinalIgnoreCase));
+
+        if (files.Length == 0)
+        {
+            LogService.Log("[VoiceService] OMITIDO: No se encontró 'wakeup_alarm.wav' en assets/voices/system/.");
+            return;
+        }
+
+        _alarmActive = true;
+        LogService.Log($"[VoiceService] ALARMA -> {Path.GetFileName(files[0])}");
+        _alarmPlayer.Open(new Uri(files[0]));
+        _alarmPlayer.Play();
+    }
+
+    private void StopWakeupAlarm()
+    {
+        if (!_alarmActive) return;
+        _alarmActive = false;
+        _alarmPlayer.Stop();
+        _alarmPlayer.Close();
+    }
+
+    // La alarma se repite hasta que el usuario reinicie el ciclo (sale de Waiting)
+    private void OnAlarmEnded(object? sender, EventArgs e)
+    {
+        if (!_alarmActive || _settings.IsMuted) return;
+        _alarmPlayer.Position = TimeSpan.Zero;
+        _alarmPlayer.Play();
+    }
+
     private void PlayRandomVoice(string subCategoryPath)
     {
         if (_settings.IsMuted) return;
@@ -127,14 +170,14 @@ public class VoiceService : IDisposable
         {
             LogService.Log($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
 
-            files = AssetPaths.FindFiles(Path.Combine("voices", "random"), "*.*",
+            files = AssetPaths.FindFiles(Path.Combine("voices", "system"), "*.*",
                 f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) ||
                      f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase));
 
             // Si no se encuentra el archivo de fallback específico, abortar
             if (files.Length == 0)
             {
-                LogService.Log("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/random/."); return;
+                LogService.Log("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/system/."); return;
             }
         }
 
@@ -153,5 +196,7 @@ public class VoiceService : IDisposable
         _blockedTimer.Tick -= OnBlockedTimerTick;
         _blockedTimer.Stop();
         _mediaPlayer.Close();
+        _alarmPlayer.MediaEnded -= OnAlarmEnded;
+        _alarmPlayer.Close();
     }
 }
