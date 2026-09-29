@@ -69,6 +69,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     }
 
     public TestMenuViewModel TestMenu { get; }
+    public CharacterEditorViewModel CharacterEditor { get; } = new();
 
     public UpdateService Updates { get; }
     public ICommand CheckUpdatesCommand { get; }
