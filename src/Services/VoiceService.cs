@@ -36,6 +36,7 @@ public class VoiceService : IDisposable
 
         _stateMachine.StateChanged += OnStateChanged;
         _stateMachine.Tick += OnStateMachineTick;
+        _settings.PropertyChanged += OnSettingsChanged;
     }
 
     private void OnStateChanged(object? sender, BreaksyStateChangedEventArgs e)
@@ -121,9 +122,18 @@ public class VoiceService : IDisposable
         }
     }
 
+    // Si se silencian los sonidos con la alarma sonando, se pausa; al reactivarlos continúa
+    private void OnSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(SettingsService.IsSoundMuted) || !_alarmActive) return;
+
+        if (_settings.IsSoundMuted) _alarmPlayer.Pause();
+        else _alarmPlayer.Play();
+    }
+
     private void StartWakeupAlarm()
     {
-        if (_settings.IsMuted) return;
+        if (_settings.IsSoundMuted) return;
 
         var files = AssetPaths.FindFiles(Path.Combine("voices", "system"), "*.*",
             f => Path.GetFileName(f).Equals("wakeup_alarm.wav", StringComparison.OrdinalIgnoreCase));
@@ -151,7 +161,7 @@ public class VoiceService : IDisposable
     // La alarma se repite hasta que el usuario reinicie el ciclo (sale de Waiting)
     private void OnAlarmEnded(object? sender, EventArgs e)
     {
-        if (!_alarmActive || _settings.IsMuted) return;
+        if (!_alarmActive || _settings.IsSoundMuted) return;
         _alarmPlayer.Position = TimeSpan.Zero;
         _alarmPlayer.Play();
     }
@@ -193,6 +203,7 @@ public class VoiceService : IDisposable
     {
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnStateMachineTick;
+        _settings.PropertyChanged -= OnSettingsChanged;
         _blockedTimer.Tick -= OnBlockedTimerTick;
         _blockedTimer.Stop();
         _mediaPlayer.Close();

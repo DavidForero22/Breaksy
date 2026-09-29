@@ -23,6 +23,21 @@ public class SettingsService : INotifyPropertyChanged
         }
     }
 
+    private bool _isSoundMuted = false;
+    /// <summary>Silencia los sonidos que no son voces (por ejemplo, la alarma al terminar el descanso).</summary>
+    public bool IsSoundMuted
+    {
+        get => _isSoundMuted;
+        set
+        {
+            if (_isSoundMuted != value)
+            {
+                _isSoundMuted = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     private InterruptionLevel _interruptionLevel = InterruptionLevel.Intermediate;
     public InterruptionLevel InterruptionLevel
     {

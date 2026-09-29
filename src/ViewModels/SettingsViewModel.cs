@@ -36,6 +36,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => _settings.IsMuted = value;
     }
 
+    public bool IsSoundMuted
+    {
+        get => _settings.IsSoundMuted;
+        set => _settings.IsSoundMuted = value;
+    }
+
     // Se guarda en el registro de Windows, no en SettingsService, para que el instalador pueda activarlo
     public bool StartWithWindows
     {
@@ -92,6 +98,9 @@ public class SettingsViewModel : INotifyPropertyChanged
 
         _settings.PropertyChanged += (s, e) =>
         {
+            if (e.PropertyName == nameof(SettingsService.IsSoundMuted))
+                OnPropertyChanged(nameof(IsSoundMuted));
+
             if (e.PropertyName == nameof(SettingsService.IsMuted))
                 OnPropertyChanged(nameof(IsMuted));
 

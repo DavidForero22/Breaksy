@@ -126,6 +126,25 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
+                            <TextBlock Text="Silenciar sonidos" Style="{StaticResource OptionTitle}"/>
+                            <TextBlock Text="Desactiva los sonidos que no son voces, como la alarma al terminar el descanso."
+                                       Style="{StaticResource OptionDescription}"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Style="{StaticResource ToggleSwitch}"
+                                  IsChecked="{Binding IsSoundMuted}"
+                                  VerticalAlignment="Center"
+                                  Margin="16,0,0,0"/>
+                    </Grid>
+
+                    <Border Style="{StaticResource OptionDivider}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
                             <TextBlock Text="Mostrar estado" Style="{StaticResource OptionTitle}"/>
                             <TextBlock Text="Muestra el estado actual debajo del personaje."
                                        Style="{StaticResource OptionDescription}"/>
