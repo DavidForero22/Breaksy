@@ -24,6 +24,11 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        // Duraciones guardadas de la sesión anterior
+        _stateMachine.NormalDuration = TimeSpan.FromMinutes(_settingsService.AwakenMinutes);
+        _stateMachine.WarningDuration = TimeSpan.FromMinutes(_settingsService.WarningMinutes);
+        _stateMachine.SleepDuration = TimeSpan.FromSeconds(_settingsService.SleepSeconds);
+
         _voiceService = new VoiceService(_stateMachine, _settingsService);
 
         _viewModel = new MainViewModel(_stateMachine, _settingsService, OpenSettingsWindow, Close);

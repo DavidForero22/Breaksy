@@ -9,6 +9,7 @@ namespace Breaksy.ViewModels;
 public class TestMenuViewModel : INotifyPropertyChanged
 {
     private readonly BreaksyStateMachine _stateMachine;
+    private readonly SettingsService _settings;
 
     public Array AvailableStates => Enum.GetValues(typeof(BreaksyState));
 
@@ -27,7 +28,10 @@ public class TestMenuViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _awakenMinutes, value))
+            {
                 _stateMachine.NormalDuration = TimeSpan.FromMinutes(value);
+                _settings.AwakenMinutes = value;
+            }
         }
     }
 
@@ -38,7 +42,10 @@ public class TestMenuViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _warningMinutes, value))
+            {
                 _stateMachine.WarningDuration = TimeSpan.FromMinutes(value);
+                _settings.WarningMinutes = value;
+            }
         }
     }
 
@@ -49,15 +56,19 @@ public class TestMenuViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _sleepSeconds, value))
+            {
                 _stateMachine.SleepDuration = TimeSpan.FromSeconds(value);
+                _settings.SleepSeconds = value;
+            }
         }
     }
 
     public ICommand ForceStateCommand { get; }
 
-    public TestMenuViewModel(BreaksyStateMachine stateMachine)
+    public TestMenuViewModel(BreaksyStateMachine stateMachine, SettingsService settings)
     {
         _stateMachine = stateMachine;
+        _settings = settings;
         SelectedState = _stateMachine.CurrentState;
 
         _awakenMinutes = (int)_stateMachine.NormalDuration.TotalMinutes;

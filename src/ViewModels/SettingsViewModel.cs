@@ -88,7 +88,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public SettingsViewModel(SettingsService settings, BreaksyStateMachine stateMachine, UpdateService updates)
     {
         _settings = settings;
-        TestMenu = new TestMenuViewModel(stateMachine);
+        TestMenu = new TestMenuViewModel(stateMachine, _settings);
         Updates = updates;
         CheckUpdatesCommand = new RelayCommand(async _ => await Updates.CheckAsync());
         InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());
