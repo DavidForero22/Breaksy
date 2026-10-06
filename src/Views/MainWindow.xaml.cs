@@ -129,7 +129,8 @@ public partial class MainWindow : Window
             _timeUpWindow = null;
         }
 
-        bool requiresBlockWindow = isBlocked;
+        // La ventana de opciones también aparece en los avisos, para poder descansar antes del bloqueo
+        bool requiresBlockWindow = isBlocked || e.NewState is BreaksyState.Warning or BreaksyState.SeriousWarning;
 
         if (requiresBlockWindow && _blockWindow == null)
         {

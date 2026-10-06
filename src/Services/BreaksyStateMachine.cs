@@ -74,10 +74,11 @@ public TimeSpan NormalDuration { get; set; } = TimeSpan.FromMinutes(20);
         EnterCountdown(BreaksyState.Awaken, ExtensionDuration);
     }
 
-    /// <summary>Botón "Descansar". Disponible en Blocked1 y Blocked2.</summary>
+    /// <summary>Botón "Descansar". Disponible en Warning, SeriousWarning, Blocked1 y Blocked2.</summary>
     public void RequestRest()
     {
-        if (CurrentState is not (BreaksyState.Blocked1 or BreaksyState.Blocked2)) return;
+        if (CurrentState is not (BreaksyState.Warning or BreaksyState.SeriousWarning
+            or BreaksyState.Blocked1 or BreaksyState.Blocked2)) return;
         EnterCountdown(BreaksyState.Sleeping, SleepDuration);
     }
 
