@@ -19,9 +19,23 @@ public abstract class ObservableBase : INotifyPropertyChanged
 }
 
 /// <summary>Editor de personaje: una entrada por estado, cada una con su lista de imágenes y de sonidos.</summary>
-public class CharacterEditorViewModel
+public class CharacterEditorViewModel : ObservableBase
 {
+    private StateEditorViewModel _selectedState;
+
     public IReadOnlyList<StateEditorViewModel> States { get; }
+
+    public StateEditorViewModel SelectedState
+    {
+        get => _selectedState;
+        set
+        {
+            // Un clic sobre el estado ya elegido no debe dejar la lista sin selección
+            if (value == null || value == _selectedState) return;
+            _selectedState = value;
+            OnPropertyChanged();
+        }
+    }
 
     public CharacterEditorViewModel()
     {
@@ -59,6 +73,8 @@ public class CharacterEditorViewModel
             new("Durmiendo", "sleeping", []),
             new("Esperando", "waiting", [])
         ];
+
+        _selectedState = States[0];
     }
 }
 
@@ -78,7 +94,7 @@ public class StateEditorViewModel : ObservableBase
 {
     private enum EditorMode { None, Image, Sound }
 
-    private EditorMode _mode = EditorMode.None;
+    private EditorMode _mode = EditorMode.Image;
     private SoundEventOption? _selectedSoundEvent;
 
     public string Name { get; }
@@ -114,10 +130,10 @@ public class StateEditorViewModel : ObservableBase
         ToggleSoundCommand = new RelayCommand(_ => { if (HasSounds) SetMode(EditorMode.Sound); });
     }
 
-    // Pulsar el botón del modo activo lo vuelve a ocultar
     private void SetMode(EditorMode mode)
     {
-        _mode = _mode == mode ? EditorMode.None : mode;
+        if (_mode == mode) return;
+        _mode = mode;
         OnPropertyChanged(nameof(IsImageMode));
         OnPropertyChanged(nameof(IsSoundMode));
     }
