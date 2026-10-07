@@ -138,6 +138,32 @@
                                  DisplayMemberPath="Label"
                                  Style="{StaticResource SegmentedControl}"
                                  Margin="0,0,0,8"/>
+                        <!-- Tipo (voz o sonido) y silencio propios de este evento -->
+                        <WrapPanel DataContext="{Binding SelectedSoundEvent}" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                                <TextBlock Text="{local:Loc editor.type}"
+                                           Style="{StaticResource OptionDescription}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+                                <ListBox ItemsSource="{Binding AudioTypes}"
+                                         SelectedItem="{Binding SelectedType}"
+                                         DisplayMemberPath="Label"
+                                         Style="{StaticResource SegmentedControl}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        ToolTipService.ShowOnDisabled="True"
+                                        ToolTip="{local:Loc editor.mute_tip}">
+                                <TextBlock Text="{local:Loc editor.mute}"
+                                           Style="{StaticResource OptionDescription}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+                                <CheckBox Style="{StaticResource ToggleSwitch}"
+                                          IsChecked="{Binding IsMuted}"
+                                          IsEnabled="{Binding CanMute}"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </WrapPanel>
                         <TextBlock Style="{StaticResource OptionDescription}" Margin="0,0,0,8">
                             <Run Text="{local:Loc editor.formats}"/><Run Text="{Binding SelectedSoundEvent.Assets.FormatsText, Mode=OneWay}"/>
                         </TextBlock>
@@ -158,5 +184,33 @@
             </DataTemplate>
             </ContentControl.ContentTemplate>
         </ContentControl>
+
+        <!-- Restablecer lo personalizado -->
+        <Border Style="{StaticResource OptionDivider}"/>
+        <TextBlock Text="{local:Loc editor.defaults}" Style="{StaticResource SectionLabel}"/>
+
+        <TextBlock Text="{local:Loc editor.reset_images}" Style="{StaticResource OptionTitle}"/>
+        <TextBlock Text="{local:Loc editor.reset_images_desc}" Style="{StaticResource OptionDescription}"/>
+        <Button Content="{local:Loc editor.reset_images_btn}"
+                Style="{StaticResource SecondaryButton}"
+                Command="{Binding ResetImagesCommand}"
+                HorizontalAlignment="Left"
+                Margin="0,10,0,16"/>
+
+        <TextBlock Text="{local:Loc editor.reset_audio}" Style="{StaticResource OptionTitle}"/>
+        <TextBlock Text="{local:Loc editor.reset_audio_desc}" Style="{StaticResource OptionDescription}"/>
+        <Button Content="{local:Loc editor.reset_audio_btn}"
+                Style="{StaticResource SecondaryButton}"
+                Command="{Binding ResetAudioCommand}"
+                HorizontalAlignment="Left"
+                Margin="0,10,0,16"/>
+
+        <TextBlock Text="{local:Loc editor.reset_types}" Style="{StaticResource OptionTitle}"/>
+        <TextBlock Text="{local:Loc editor.reset_types_desc}" Style="{StaticResource OptionDescription}"/>
+        <Button Content="{local:Loc editor.reset_types_btn}"
+                Style="{StaticResource SecondaryButton}"
+                Command="{Binding ResetAudioTypesCommand}"
+                HorizontalAlignment="Left"
+                Margin="0,10,0,0"/>
     </StackPanel>
 </UserControl>

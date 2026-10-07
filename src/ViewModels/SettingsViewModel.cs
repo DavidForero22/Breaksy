@@ -91,7 +91,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     }
 
     public TestMenuViewModel TestMenu { get; }
-    public CharacterEditorViewModel CharacterEditor { get; } = new();
+    public CharacterEditorViewModel CharacterEditor { get; }
 
     public UpdateService Updates { get; }
     public ICommand CheckUpdatesCommand { get; }
@@ -105,6 +105,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         _settings = settings;
         TestMenu = new TestMenuViewModel(stateMachine, _settings);
+        CharacterEditor = new CharacterEditorViewModel(_settings);
         Updates = updates;
         CheckUpdatesCommand = new RelayCommand(async _ => await Updates.CheckAsync());
         InstallUpdateCommand = new RelayCommand(async _ => await Updates.DownloadAndRestartAsync());

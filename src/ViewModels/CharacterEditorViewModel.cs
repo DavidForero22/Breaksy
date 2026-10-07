@@ -38,38 +38,48 @@ public class CharacterEditorViewModel : ObservableBase
         }
     }
 
-    public CharacterEditorViewModel()
+    private readonly SettingsService _settings;
+
+    public ICommand ResetImagesCommand { get; }
+    public ICommand ResetAudioCommand { get; }
+    public ICommand ResetAudioTypesCommand { get; }
+
+    public CharacterEditorViewModel(SettingsService settings)
     {
+        _settings = settings;
+
         // Las carpetas coinciden con las que lee VoiceService
+        SoundEventOption Event(string labelKey, string relativeDir) => new(labelKey, relativeDir, settings);
+
         SoundEventOption[] Steps(string folder) =>
         [
-            new("event.start", $@"audio\{folder}\step_1"),
-            new("event.left_40", $@"audio\{folder}\step_2"),
-            new("event.left_20", $@"audio\{folder}\step_3")
+            Event("event.start", $@"audio\{folder}\step_1"),
+            Event("event.left_40", $@"audio\{folder}\step_2"),
+            Event("event.left_20", $@"audio\{folder}\step_3")
         ];
 
         SoundEventOption[] Blocked(string folder) =>
         [
-            new("event.on_block", $@"audio\{folder}\enter"),
-            new("event.after_1", $@"audio\{folder}\1_min"),
-            new("event.after_5", $@"audio\{folder}\5_min")
+            Event("event.on_block", $@"audio\{folder}\enter"),
+            Event("event.after_1", $@"audio\{folder}\1_min"),
+            Event("event.after_5", $@"audio\{folder}\5_min")
         ];
 
         States =
         [
-            new(BreaksyState.Disabled, [new("event.on_disable", @"audio\disabled\disable")]),
+            new(BreaksyState.Disabled, [Event("event.on_disable", @"audio\disabled\disable")]),
             new(BreaksyState.Idle, []),
             new(BreaksyState.Awaken,
             [
-                new("event.from_idle", @"audio\awaken\from_idle"),
-                new("event.from_disabled", @"audio\awaken\from_disabled"),
-                new("event.from_extension", @"audio\awaken\from_blocked1"),
-                new("event.from_rest", @"audio\awaken\from_waiting")
+                Event("event.from_idle", @"audio\awaken\from_idle"),
+                Event("event.from_disabled", @"audio\awaken\from_disabled"),
+                Event("event.from_extension", @"audio\awaken\from_blocked1"),
+                Event("event.from_rest", @"audio\awaken\from_waiting")
             ]),
             new(BreaksyState.Paused,
             [
-                new("event.on_pause", @"audio\paused\pause"),
-                new("event.on_resume", @"audio\paused\resume")
+                Event("event.on_pause", @"audio\paused\pause"),
+                Event("event.on_resume", @"audio\paused\resume")
             ]),
             new(BreaksyState.Warning, Steps("warning")),
             new(BreaksyState.SeriousWarning, Steps("serious_warning")),
@@ -80,21 +90,103 @@ public class CharacterEditorViewModel : ObservableBase
         ];
 
         _selectedState = States[0];
+
+        ResetImagesCommand = new RelayCommand(_ => ResetFiles("editor.confirm_reset_images",
+            States.Select(s => s.Images)));
+        ResetAudioCommand = new RelayCommand(_ => ResetFiles("editor.confirm_reset_audio",
+            States.SelectMany(s => s.SoundEvents).Select(e => e.Assets)));
+        ResetAudioTypesCommand = new RelayCommand(_ =>
+        {
+            if (Confirm("editor.confirm_reset_types")) _settings.ResetAudioSettings();
+        });
+    }
+
+    private static bool Confirm(string messageKey) =>
+        System.Windows.MessageBox.Show(LocalizationService.Get(messageKey), "Breaksy",
+            System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+
+    // Borra los archivos propios del usuario: vuelven a usarse los de serie
+    private static void ResetFiles(string confirmKey, IEnumerable<AssetListViewModel> lists)
+    {
+        if (!Confirm(confirmKey)) return;
+
+        int failed = lists.Sum(list => list.ClearUserFiles());
+        if (failed > 0)
+            System.Windows.MessageBox.Show(LocalizationService.Format("editor.reset_failed", failed), "Breaksy",
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+    }
+}
+
+/// <summary>Opción del selector Voz / Sonido de un evento de audio.</summary>
+public class AudioTypeOption : ObservableBase
+{
+    public static IReadOnlyList<AudioTypeOption> All { get; } =
+    [
+        new(AudioType.Voice, "editor.type_voice"),
+        new(AudioType.Sound, "editor.type_sound")
+    ];
+
+    private readonly string _labelKey;
+
+    public AudioType Type { get; }
+    public string Label => LocalizationService.Get(_labelKey);
+
+    private AudioTypeOption(AudioType type, string labelKey)
+    {
+        Type = type;
+        _labelKey = labelKey;
+        LocalizationService.Subscribe(this, o => o.OnPropertyChanged(nameof(Label)));
     }
 }
 
 public class SoundEventOption : ObservableBase
 {
     private readonly string _labelKey;
+    private readonly SettingsService _settings;
 
     public string Label => LocalizationService.Get(_labelKey);
     public AssetListViewModel Assets { get; }
+    public IReadOnlyList<AudioTypeOption> AudioTypes => AudioTypeOption.All;
 
-    public SoundEventOption(string labelKey, string relativeDir)
+    /// <summary>Identifica el evento en la configuración: su carpeta dentro de audio\.</summary>
+    public string Key { get; }
+
+    /// <summary>Tipo del audio (voz o sonido); por defecto, el que tiene de serie.</summary>
+    public AudioTypeOption SelectedType
+    {
+        get => AudioTypeOption.All.First(o => o.Type == _settings.GetAudioType(Key));
+        set { if (value != null) _settings.SetAudioType(Key, value.Type); }
+    }
+
+    public bool IsMuted
+    {
+        get => _settings.IsAudioMuted(Key);
+        set => _settings.SetAudioMuted(Key, value);
+    }
+
+    /// <summary>Silenciar un audio solo se puede cambiar si su tipo está activo en Aplicación.</summary>
+    public bool CanMute => _settings.GetAudioType(Key) == AudioType.Voice ? !_settings.IsMuted : !_settings.IsSoundMuted;
+
+    public SoundEventOption(string labelKey, string relativeDir, SettingsService settings)
     {
         _labelKey = labelKey;
+        _settings = settings;
+        Key = relativeDir["audio\\".Length..];
         Assets = new AssetListViewModel(relativeDir, AssetKind.Sound);
+
         LocalizationService.Subscribe(this, o => o.OnPropertyChanged(nameof(Label)));
+        // Enlace débil: el servicio de ajustes vive toda la sesión y este objeto, solo mientras esté abierta la ventana
+        PropertyChangedEventManager.AddHandler(settings, OnSettingsChanged, string.Empty);
+    }
+
+    private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is not (nameof(SettingsService.IsMuted) or nameof(SettingsService.IsSoundMuted)
+            or SettingsService.AudioSettingsProperty)) return;
+
+        OnPropertyChanged(nameof(SelectedType));
+        OnPropertyChanged(nameof(IsMuted));
+        OnPropertyChanged(nameof(CanMute));
     }
 }
 
@@ -105,7 +197,9 @@ public class StateEditorViewModel : ObservableBase
     private EditorMode _mode = EditorMode.Image;
     private SoundEventOption? _selectedSoundEvent;
 
-    public string Name { get; }
+    private readonly BreaksyState _state;
+
+    public string Name => LocalizationService.StateName(_state);
     public AssetListViewModel Images { get; }
     public IReadOnlyList<SoundEventOption> SoundEvents { get; }
 
@@ -129,7 +223,8 @@ public class StateEditorViewModel : ObservableBase
 
     public StateEditorViewModel(BreaksyState state, IReadOnlyList<SoundEventOption> soundEvents)
     {
-        Name = LocalizationService.StateName(state);
+        _state = state;
+        LocalizationService.Subscribe(this, o => o.OnPropertyChanged(nameof(Name)));
         Images = new AssetListViewModel($@"character\{CharacterImageService.GetStateKey(state)}", AssetKind.Image);
         SoundEvents = soundEvents;
         _selectedSoundEvent = soundEvents.FirstOrDefault();
@@ -260,6 +355,28 @@ public class AssetListViewModel
             path = Path.Combine(Folder, $"{name} ({i}){ext}");
 
         return path;
+    }
+
+    /// <summary>Borra todos los archivos del usuario de esta lista. Devuelve cuántos no se han podido borrar.</summary>
+    public int ClearUserFiles()
+    {
+        int failed = 0;
+
+        foreach (var slot in Slots.Where(s => !s.IsEmpty).ToList())
+        {
+            try
+            {
+                File.Delete(slot.FilePath!);
+            }
+            catch (Exception ex)
+            {
+                failed++;
+                LogService.Log($"[CharacterEditor] ERROR al borrar '{slot.FilePath}': {ex.Message}");
+            }
+        }
+
+        Refresh();
+        return failed;
     }
 
     public void Remove(AssetSlotViewModel slot)

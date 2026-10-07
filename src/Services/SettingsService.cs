@@ -30,6 +30,9 @@ public class SettingsService : INotifyPropertyChanged
         public int AwakenMinutes { get; set; } = 20;
         public int WarningMinutes { get; set; } = 1;
         public int SleepSeconds { get; set; } = 35;
+        // Solo los eventos cuyo tipo difiere del de serie, y los silenciados uno a uno
+        public Dictionary<string, AudioType> AudioTypes { get; set; } = [];
+        public List<string> MutedAudio { get; set; } = [];
     }
 
     private bool _loading;
@@ -64,6 +67,11 @@ public class SettingsService : INotifyPropertyChanged
             AwakenMinutes = Math.Max(1, data.AwakenMinutes);
             WarningMinutes = Math.Max(1, data.WarningMinutes);
             SleepSeconds = Math.Max(1, data.SleepSeconds);
+
+            foreach (var (key, type) in data.AudioTypes ?? [])
+                if (Enum.IsDefined(type) && type != AudioCatalog.DefaultType(key)) _audioTypes[key] = type;
+            foreach (var key in data.MutedAudio ?? [])
+                _mutedAudio.Add(key);
         }
         catch (Exception ex)
         {
@@ -92,7 +100,9 @@ public class SettingsService : INotifyPropertyChanged
                 IsDebugConsoleEnabled = IsDebugConsoleEnabled,
                 AwakenMinutes = AwakenMinutes,
                 WarningMinutes = WarningMinutes,
-                SleepSeconds = SleepSeconds
+                SleepSeconds = SleepSeconds,
+                AudioTypes = new Dictionary<string, AudioType>(_audioTypes),
+                MutedAudio = [.. _mutedAudio]
             };
             File.WriteAllText(SettingsPath, JsonSerializer.Serialize(data, JsonOptions));
         }
@@ -102,7 +112,46 @@ public class SettingsService : INotifyPropertyChanged
         }
     }
 
-    // Duraciones (se editan desde el menú de pruebas de la consola de depuración)
+    // === Audio por evento ===
+    // La clave es la carpeta dentro de audio\ (por ejemplo "warning\step_1")
+
+    private readonly Dictionary<string, AudioType> _audioTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _mutedAudio = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Tipo con el que se trata un evento: el que eligió el usuario o, si no, el de serie.</summary>
+    public AudioType GetAudioType(string key) =>
+        _audioTypes.TryGetValue(key, out var type) ? type : AudioCatalog.DefaultType(key);
+
+    public void SetAudioType(string key, AudioType type)
+    {
+        if (GetAudioType(key) == type) return;
+
+        if (type == AudioCatalog.DefaultType(key)) _audioTypes.Remove(key);
+        else _audioTypes[key] = type;
+        OnPropertyChanged(AudioSettingsProperty);
+    }
+
+    public bool IsAudioMuted(string key) => _mutedAudio.Contains(key);
+
+    public void SetAudioMuted(string key, bool muted)
+    {
+        if (!(muted ? _mutedAudio.Add(key) : _mutedAudio.Remove(key))) return;
+        OnPropertyChanged(AudioSettingsProperty);
+    }
+
+    /// <summary>Vuelve todos los eventos a su tipo de serie y quita los silencios individuales.</summary>
+    public void ResetAudioSettings()
+    {
+        if (_audioTypes.Count == 0 && _mutedAudio.Count == 0) return;
+        _audioTypes.Clear();
+        _mutedAudio.Clear();
+        OnPropertyChanged(AudioSettingsProperty);
+    }
+
+    /// <summary>Nombre de la notificación que se lanza al cambiar el tipo o el silencio de algún evento.</summary>
+    public const string AudioSettingsProperty = "AudioSettings";
+
+    // Duraciones (se editan en Configuración → Aplicación)
     private int _awakenMinutes = 20;
     public int AwakenMinutes
     {

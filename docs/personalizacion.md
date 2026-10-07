@@ -52,7 +52,22 @@ Todos los audios viven bajo `audio\`, pero Breaksy los distingue en dos tipos, q
 | **Voz** | Líneas que dice el personaje al avisar o al cambiar de estado. | **Reproducir voces** |
 | **Sonido** | Efectos que no son voces: la alarma y los sonidos de pausar, reanudar, desactivar y volver de desactivado. | **Reproducir sonidos** |
 
-El tipo lo decide Breaksy según la carpeta, no el contenido del archivo. En las tablas siguientes cada carpeta indica si es voz o sonido.
+El tipo lo decide Breaksy según la carpeta, no el contenido del archivo. En las tablas siguientes cada carpeta indica el tipo **de serie**.
+
+### Cambiar el tipo o silenciar un audio
+
+En **Configuración → Personalización → Editor de personaje**, al abrir la pestaña **Sonido** de un estado, cada evento (cada carpeta de las tablas siguientes) tiene sus propias opciones:
+
+- **Tipo (Voz / Sonido):** decide qué interruptor de Aplicación controla ese audio. Por defecto es el tipo de serie indicado en las tablas.
+- **Silenciar:** silencia solo ese audio. Solo se puede cambiar mientras el tipo del audio esté activado en **Configuración → Aplicación**; si "Reproducir voces" (o "Reproducir sonidos") está apagado, el interruptor aparece deshabilitado.
+
+Estas opciones se guardan en `settings.json`, no en la carpeta de audio. En la parte inferior del editor, **Valores por defecto** permite, con confirmación y para todos los estados a la vez:
+
+- **Restablecer imágenes:** borra tus imágenes y vuelve a usar las de serie.
+- **Restablecer audios:** borra tus audios y vuelve a usar los de serie.
+- **Restablecer tipos:** cada audio recupera su tipo de serie y se quitan los silencios individuales.
+
+> El *fallback* de voz (`audio/system/fallback.mp3`) solo se usa en los eventos que son voces de serie. Si conviertes un sonido en voz y su carpeta está vacía, no suena nada.
 
 ### Al empezar o reanudar el trabajo (`audio\awaken\`)
 

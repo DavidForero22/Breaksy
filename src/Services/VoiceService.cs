@@ -61,11 +61,11 @@ public class VoiceService : IDisposable
         }
 
         // Sonidos de pausa, reanudación y desactivación
-        if (e.NewState == BreaksyState.Paused) PlayRandomSound(@"paused\pause");
+        if (e.NewState == BreaksyState.Paused) PlayAudio(@"paused\pause");
         if (e.OldState == BreaksyState.Paused
             && e.NewState is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning)
-            PlayRandomSound(@"paused\resume");
-        if (e.NewState == BreaksyState.Disabled) PlayRandomSound(@"disabled\disable");
+            PlayAudio(@"paused\resume");
+        if (e.NewState == BreaksyState.Disabled) PlayAudio(@"disabled\disable");
 
         // Disparar audios de transición
         switch (e.NewState)
@@ -74,16 +74,16 @@ public class VoiceService : IDisposable
                 HandleAwakenVoices(e.OldState);
                 break;
             case BreaksyState.Warning:
-                PlayRandomVoice(@"warning\step_1");
+                PlayAudio(@"warning\step_1");
                 break;
             case BreaksyState.SeriousWarning:
-                PlayRandomVoice(@"serious_warning\step_1");
+                PlayAudio(@"serious_warning\step_1");
                 break;
             case BreaksyState.Blocked1:
-                PlayRandomVoice(@"blocked_1\enter");
+                PlayAudio(@"blocked_1\enter");
                 break;
             case BreaksyState.Blocked2:
-                PlayRandomVoice(@"blocked_2\enter");
+                PlayAudio(@"blocked_2\enter");
                 break;
         }
     }
@@ -92,10 +92,10 @@ public class VoiceService : IDisposable
     {
         switch (oldState)
         {
-            case BreaksyState.Idle: PlayRandomVoice(@"awaken\from_idle"); break;
-            case BreaksyState.Disabled: PlayRandomSound(@"awaken\from_disabled"); break;
-            case BreaksyState.Blocked1: PlayRandomVoice(@"awaken\from_blocked1"); break;
-            case BreaksyState.Waiting: PlayRandomVoice(@"awaken\from_waiting"); break;
+            case BreaksyState.Idle: PlayAudio(@"awaken\from_idle"); break;
+            case BreaksyState.Disabled: PlayAudio(@"awaken\from_disabled"); break;
+            case BreaksyState.Blocked1: PlayAudio(@"awaken\from_blocked1"); break;
+            case BreaksyState.Waiting: PlayAudio(@"awaken\from_waiting"); break;
         }
     }
 
@@ -107,13 +107,13 @@ public class VoiceService : IDisposable
 
         if (_stateMachine.CurrentState == BreaksyState.Warning)
         {
-            if (secondsRemaining == 40) PlayRandomVoice(@"warning\step_2");
-            if (secondsRemaining == 20) PlayRandomVoice(@"warning\step_3");
+            if (secondsRemaining == 40) PlayAudio(@"warning\step_2");
+            if (secondsRemaining == 20) PlayAudio(@"warning\step_3");
         }
         else if (_stateMachine.CurrentState == BreaksyState.SeriousWarning)
         {
-            if (secondsRemaining == 40) PlayRandomVoice(@"serious_warning\step_2");
-            if (secondsRemaining == 20) PlayRandomVoice(@"serious_warning\step_3");
+            if (secondsRemaining == 40) PlayAudio(@"serious_warning\step_2");
+            if (secondsRemaining == 20) PlayAudio(@"serious_warning\step_3");
         }
     }
 
@@ -123,13 +123,13 @@ public class VoiceService : IDisposable
 
         if (_stateMachine.CurrentState == BreaksyState.Blocked1)
         {
-            if (_blockedSeconds == 60) PlayRandomVoice(@"blocked_1\1_min");
-            if (_blockedSeconds == 300) PlayRandomVoice(@"blocked_1\5_min");
+            if (_blockedSeconds == 60) PlayAudio(@"blocked_1\1_min");
+            if (_blockedSeconds == 300) PlayAudio(@"blocked_1\5_min");
         }
         else if (_stateMachine.CurrentState == BreaksyState.Blocked2)
         {
-            if (_blockedSeconds == 60) PlayRandomVoice(@"blocked_2\1_min");
-            if (_blockedSeconds == 300) PlayRandomVoice(@"blocked_2\5_min");
+            if (_blockedSeconds == 60) PlayAudio(@"blocked_2\1_min");
+            if (_blockedSeconds == 300) PlayAudio(@"blocked_2\5_min");
         }
     }
 
@@ -177,6 +177,15 @@ public class VoiceService : IDisposable
         _alarmPlayer.Play();
     }
 
+    // Reproduce un evento según el tipo que tenga (el de serie o el que haya elegido el usuario) y su silencio individual
+    private void PlayAudio(string key)
+    {
+        if (_settings.IsAudioMuted(key)) return;
+
+        if (_settings.GetAudioType(key) == AudioType.Voice) PlayRandomVoice(key);
+        else PlayRandomSound(key);
+    }
+
     // Sonido (no es una voz): respeta "Reproducir sonidos" y, si no hay archivos, no suena nada
     private void PlayRandomSound(string subCategoryPath)
     {
@@ -194,6 +203,8 @@ public class VoiceService : IDisposable
         _soundPlayer.Play();
     }
 
+    // Voz: respeta "Reproducir voces". Si la carpeta está vacía suena el fallback, salvo en los eventos
+    // que de serie no son voces (un sonido de pausa vacío no debe sustituirse por una frase genérica).
     private void PlayRandomVoice(string subCategoryPath)
     {
         if (_settings.IsMuted) return;
@@ -204,6 +215,12 @@ public class VoiceService : IDisposable
                  f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase));
 
         // Lógica de Fallback si la carpeta no existe o está vacía
+        if (files.Length == 0 && AudioCatalog.DefaultType(subCategoryPath) != AudioType.Voice)
+        {
+            LogService.Log($"[VoiceService] OMITIDO: no hay audios en {subCategoryPath} y no usa fallback.");
+            return;
+        }
+
         if (files.Length == 0)
         {
             LogService.Log($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");

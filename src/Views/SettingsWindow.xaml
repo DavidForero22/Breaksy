@@ -220,6 +220,35 @@
                                    Foreground="{StaticResource TextBrush}"
                                    Margin="0"/>
                     </Border>
+
+                    <Border Style="{StaticResource OptionDivider}"/>
+
+                    <!-- Duraciones -->
+                    <StackPanel DataContext="{Binding TestMenu}">
+                        <TextBlock Text="{local:Loc app.durations}" Style="{StaticResource SectionLabel}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{local:Loc app.work}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
+                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
+                                         Text="{Binding AwakenMinutes, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{local:Loc app.warnings}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
+                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
+                                         Text="{Binding WarningMinutes, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{local:Loc app.rest}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
+                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
+                                         Text="{Binding SleepSeconds, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
 
@@ -298,32 +327,6 @@
 
                     <!-- Menú de pruebas -->
                     <StackPanel DataContext="{Binding TestMenu}">
-                        <TextBlock Text="{local:Loc dev.durations}" Style="{StaticResource SectionLabel}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="{local:Loc dev.work}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
-                                         Text="{Binding AwakenMinutes, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{local:Loc dev.warnings}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
-                                         Text="{Binding WarningMinutes, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="{local:Loc dev.rest}" Style="{StaticResource OptionDescription}" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource DarkTextBox}" HorizontalAlignment="Left"
-                                         Text="{Binding SleepSeconds, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <Border Style="{StaticResource OptionDivider}"/>
-
                         <TextBlock Text="{local:Loc dev.force_state}" Style="{StaticResource SectionLabel}"/>
                         <ListBox Style="{StaticResource SegmentedControl}"
                                  ItemsSource="{Binding AvailableStates}"
