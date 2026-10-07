@@ -17,11 +17,11 @@ public class SettingsViewModel : INotifyPropertyChanged
     public IReadOnlyList<InterruptionLevelOption> InterruptionLevels { get; } =
     [
         new(InterruptionLevel.Light, "Ligero",
-            "El personaje cambia de estado y te avisa por voz."),
+            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones."),
         new(InterruptionLevel.Intermediate, "Intermedio",
-            "Además, se bloquea el teclado para que no puedas seguir escribiendo."),
+            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones y el teclado se bloquea hasta terminar el descanso."),
         new(InterruptionLevel.Strict, "Estricto",
-            "Además, aparece una ventana de advertencia en el centro de la pantalla.")
+            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones, el teclado se bloquea hasta terminar el descanso, y se muestra una ventana de advertencia en el centro de la pantalla.")
     ];
 
     public InterruptionLevelOption SelectedInterruptionLevel
@@ -30,16 +30,17 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => _settings.InterruptionLevel = value.Level;
     }
 
-    public bool IsMuted
+    // La interfaz expresa "reproducir"; SettingsService guarda lo contrario (silenciado)
+    public bool PlayVoices
     {
-        get => _settings.IsMuted;
-        set => _settings.IsMuted = value;
+        get => !_settings.IsMuted;
+        set => _settings.IsMuted = !value;
     }
 
-    public bool IsSoundMuted
+    public bool PlaySounds
     {
-        get => _settings.IsSoundMuted;
-        set => _settings.IsSoundMuted = value;
+        get => !_settings.IsSoundMuted;
+        set => _settings.IsSoundMuted = !value;
     }
 
     // Se guarda en el registro de Windows, no en SettingsService, para que el instalador pueda activarlo
@@ -99,10 +100,10 @@ public class SettingsViewModel : INotifyPropertyChanged
         _settings.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(SettingsService.IsSoundMuted))
-                OnPropertyChanged(nameof(IsSoundMuted));
+                OnPropertyChanged(nameof(PlaySounds));
 
             if (e.PropertyName == nameof(SettingsService.IsMuted))
-                OnPropertyChanged(nameof(IsMuted));
+                OnPropertyChanged(nameof(PlayVoices));
 
             if (e.PropertyName == nameof(SettingsService.IsKeyboardBlockAvailable))
                 OnPropertyChanged(nameof(IsKeyboardBlockUnavailable));

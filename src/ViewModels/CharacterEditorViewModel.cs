@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Breaksy.Models;
 using Breaksy.Services;
 using Microsoft.Win32;
 
@@ -56,22 +57,22 @@ public class CharacterEditorViewModel : ObservableBase
 
         States =
         [
-            new("Desactivado", "disabled", []),
-            new("Inactivo", "idle", []),
-            new("Trabajando", "awaken",
+            new(BreaksyState.Disabled, []),
+            new(BreaksyState.Idle, []),
+            new(BreaksyState.Awaken,
             [
                 new("Desde inactivo", @"voices\awaken\from_idle"),
                 new("Desde desactivado", @"voices\awaken\from_disabled"),
                 new("Tras «5 minutos más»", @"voices\awaken\from_blocked1"),
                 new("Tras el descanso", @"voices\awaken\from_waiting")
             ]),
-            new("Pausado", "paused", []),
-            new("Aviso", "warning", Steps("warning")),
-            new("Aviso serio", "serious_warning", Steps("serious_warning")),
-            new("Bloqueo 1", "blocked_1", Blocked("blocked_1")),
-            new("Bloqueo 2", "blocked_2", Blocked("blocked_2")),
-            new("Durmiendo", "sleeping", []),
-            new("Esperando", "waiting", [])
+            new(BreaksyState.Paused, []),
+            new(BreaksyState.Warning, Steps("warning")),
+            new(BreaksyState.SeriousWarning, Steps("serious_warning")),
+            new(BreaksyState.Blocked1, Blocked("blocked_1")),
+            new(BreaksyState.Blocked2, Blocked("blocked_2")),
+            new(BreaksyState.Sleeping, []),
+            new(BreaksyState.Waiting, [])
         ];
 
         _selectedState = States[0];
@@ -119,10 +120,10 @@ public class StateEditorViewModel : ObservableBase
     public ICommand ToggleImageCommand { get; }
     public ICommand ToggleSoundCommand { get; }
 
-    public StateEditorViewModel(string name, string stateKey, IReadOnlyList<SoundEventOption> soundEvents)
+    public StateEditorViewModel(BreaksyState state, IReadOnlyList<SoundEventOption> soundEvents)
     {
-        Name = name;
-        Images = new AssetListViewModel($@"character\{stateKey}", AssetKind.Image);
+        Name = LocalizationService.StateName(state);
+        Images = new AssetListViewModel($@"character\{CharacterImageService.GetStateKey(state)}", AssetKind.Image);
         SoundEvents = soundEvents;
         _selectedSoundEvent = soundEvents.FirstOrDefault();
 

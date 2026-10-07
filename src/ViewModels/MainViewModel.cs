@@ -183,7 +183,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         ActivationMenuHeader = state == BreaksyState.Disabled ? "Activar" : "Desactivar";
         CanToggleActivation = CanDisable || state == BreaksyState.Disabled;
 
-        StateText = $"Estado: {state}";
+        StateText = string.Format(LocalizationService.Get("state.label"), LocalizationService.StateName(state));
         ImagePath = _imageService.GetImagePathForState(state);
     }
 

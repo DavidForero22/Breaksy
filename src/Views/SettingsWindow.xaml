@@ -107,13 +107,13 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Silenciar voces" Style="{StaticResource OptionTitle}"/>
-                            <TextBlock Text="Desactiva todas las líneas de voz del personaje."
+                            <TextBlock Text="Reproducir voces" Style="{StaticResource OptionTitle}"/>
+                            <TextBlock Text="El personaje habla en cada cambio de estado. Si lo desactivas, no se reproduce ninguna línea de voz."
                                        Style="{StaticResource OptionDescription}"/>
                         </StackPanel>
                         <CheckBox Grid.Column="1"
                                   Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding IsMuted}"
+                                  IsChecked="{Binding PlayVoices}"
                                   VerticalAlignment="Center"
                                   Margin="16,0,0,0"/>
                     </Grid>
@@ -126,13 +126,13 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Silenciar sonidos" Style="{StaticResource OptionTitle}"/>
-                            <TextBlock Text="Desactiva los sonidos que no son voces, como la alarma al terminar el descanso."
+                            <TextBlock Text="Reproducir sonidos" Style="{StaticResource OptionTitle}"/>
+                            <TextBlock Text="Suenan los efectos que no son voces, como la alarma al terminar el descanso. Si lo desactivas, quedan en silencio."
                                        Style="{StaticResource OptionDescription}"/>
                         </StackPanel>
                         <CheckBox Grid.Column="1"
                                   Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding IsSoundMuted}"
+                                  IsChecked="{Binding PlaySounds}"
                                   VerticalAlignment="Center"
                                   Margin="16,0,0,0"/>
                     </Grid>

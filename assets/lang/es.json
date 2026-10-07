@@ -1,0 +1,13 @@
+{
+  "state.label": "Estado: {0}",
+  "state.Disabled": "Desactivado",
+  "state.Idle": "Inactivo",
+  "state.Awaken": "Trabajando",
+  "state.Paused": "Pausado",
+  "state.Warning": "Aviso",
+  "state.SeriousWarning": "Aviso serio",
+  "state.Blocked1": "Bloqueo 1",
+  "state.Blocked2": "Bloqueo 2",
+  "state.Sleeping": "Durmiendo",
+  "state.Waiting": "Esperando"
+}
