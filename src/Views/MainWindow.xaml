@@ -52,7 +52,7 @@
 
                         <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick"
-                                                Command="{Binding StartCommand}"/>
+                                                Command="{Binding CharacterClickCommand}"/>
                         </Border.InputBindings>
 
                         <Border.Effect>

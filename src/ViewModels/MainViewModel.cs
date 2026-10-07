@@ -39,6 +39,15 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _canDisable = false;
     public bool CanDisable { get => _canDisable; set => SetProperty(ref _canDisable, value); }
 
+    // Opción Activar/Desactivar del menú del personaje
+    private string _activationMenuHeader = "Desactivar";
+    public string ActivationMenuHeader { get => _activationMenuHeader; set => SetProperty(ref _activationMenuHeader, value); }
+
+    private bool _canToggleActivation;
+    public bool CanToggleActivation { get => _canToggleActivation; set => SetProperty(ref _canToggleActivation, value); }
+
+    public ICommand CharacterClickCommand { get; }
+    public ICommand ToggleActivationCommand { get; }
     public ICommand StartCommand { get; }
     public ICommand PauseCommand { get; }
     public ICommand DisableCommand { get; }
@@ -59,6 +68,22 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _imageService = new CharacterImageService();
 
         StartCommand = new RelayCommand(_ => { if (CanStart) _stateMachine.Start(); });
+        // Clic en el personaje: inicia desde Idle o Waiting, pausa durante el conteo, reanuda desde Pausado
+        // y no hace nada en Desactivado
+        CharacterClickCommand = new RelayCommand(_ =>
+        {
+            switch (_stateMachine.CurrentState)
+            {
+                case BreaksyState.Idle or BreaksyState.Waiting: _stateMachine.Start(); break;
+                case BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning: _stateMachine.Pause(); break;
+                case BreaksyState.Paused: _stateMachine.Resume(); break;
+            }
+        });
+        ToggleActivationCommand = new RelayCommand(_ =>
+        {
+            if (_stateMachine.CurrentState == BreaksyState.Disabled) _stateMachine.Start();
+            else _stateMachine.Disable();
+        });
         PauseCommand = new RelayCommand(_ => TogglePause());
         DisableCommand = new RelayCommand(_ => _stateMachine.Disable());
         OpenSettingsCommand = new RelayCommand(_ => openSettingsAction());
@@ -151,9 +176,12 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private void UpdateVisuals(BreaksyState state)
     {
         CanStart = state is BreaksyState.Idle or BreaksyState.Disabled or BreaksyState.Waiting;
-        CanPause = state is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning or BreaksyState.Paused;
+        CanPause = state is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning
+            or BreaksyState.Paused;
         PauseMenuHeader = state == BreaksyState.Paused ? "Reanudar" : "Pausar";
         CanDisable = state is not (BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping or BreaksyState.Disabled);
+        ActivationMenuHeader = state == BreaksyState.Disabled ? "Activar" : "Desactivar";
+        CanToggleActivation = CanDisable || state == BreaksyState.Disabled;
 
         StateText = $"Estado: {state}";
         ImagePath = _imageService.GetImagePathForState(state);

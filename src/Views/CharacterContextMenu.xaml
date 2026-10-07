@@ -5,9 +5,9 @@
         <MenuItem Header="{Binding PauseMenuHeader}"
                         Command="{Binding PauseCommand}"
                         IsEnabled="{Binding CanPause}"/>
-        <MenuItem Header="Desactivar"
-                        Command="{Binding DisableCommand}"
-                        IsEnabled="{Binding CanDisable}"/>
+        <MenuItem Header="{Binding ActivationMenuHeader}"
+                        Command="{Binding ToggleActivationCommand}"
+                        IsEnabled="{Binding CanToggleActivation}"/>
         <Separator/>
         <MenuItem Header="Configuración"
                         Command="{Binding OpenSettingsCommand}"/>
