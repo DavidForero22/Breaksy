@@ -24,7 +24,7 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
 
     public bool IsInstalled => _manager.IsInstalled;
 
-    public string CurrentVersion => _manager.CurrentVersion?.ToString() ?? "desarrollo";
+    public string CurrentVersion => _manager.CurrentVersion?.ToString() ?? LocalizationService.Get("update.dev_version");
 
     private string? _availableVersion;
     public string? AvailableVersion { get => _availableVersion; private set => SetProperty(ref _availableVersion, value); }
@@ -37,13 +37,29 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
     private string _status = string.Empty;
     public string Status { get => _status; private set => SetProperty(ref _status, value); }
 
+    // Se guarda la clave del mensaje para poder traducirlo de nuevo al cambiar de idioma
+    private string _statusKey = string.Empty;
+    private object[] _statusArgs = [];
+
+    private void SetStatus(string key, params object[] args)
+    {
+        _statusKey = key;
+        _statusArgs = args;
+        Status = LocalizationService.Format(key, args);
+    }
+
+    private void RefreshLanguage()
+    {
+        if (_statusKey.Length > 0) Status = LocalizationService.Format(_statusKey, _statusArgs);
+        OnPropertyChanged(nameof(CurrentVersion));
+    }
+
     public UpdateService()
     {
         _manager = new UpdateManager(new GithubSource(RepositoryUrl, null, false));
 
-        Status = IsInstalled
-            ? "Pulsa \"Buscar actualizaciones\" para comprobar si hay una versión nueva."
-            : "Las actualizaciones solo están disponibles en la versión instalada.";
+        SetStatus(IsInstalled ? "update.press_check" : "update.only_installed");
+        LocalizationService.Subscribe(this, u => u.RefreshLanguage());
 
         _timer = new System.Windows.Threading.DispatcherTimer { Interval = CheckInterval };
         _timer.Tick += async (_, _) => await CheckAsync();
@@ -62,7 +78,7 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
         if (!IsInstalled || IsBusy) return;
 
         IsBusy = true;
-        Status = "Buscando actualizaciones...";
+        SetStatus("update.checking");
         try
         {
             var update = await _manager.CheckForUpdatesAsync();
@@ -74,11 +90,11 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
 
             if (update == null)
             {
-                Status = "Breaksy está actualizado.";
+                SetStatus("update.up_to_date");
             }
             else
             {
-                Status = $"Hay una nueva versión disponible: {AvailableVersion}.";
+                SetStatus("update.available", AvailableVersion!);
                 LogService.Log($"[UpdateService] Actualización disponible: {CurrentVersion} -> {AvailableVersion}");
                 if (AvailableVersion != previousVersion)
                     UpdateFound?.Invoke(AvailableVersion!);
@@ -87,7 +103,7 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
         catch (Exception ex)
         {
             // Sin conexión, límite de peticiones de GitHub, etc. No es crítico: se reintenta en la próxima comprobación.
-            Status = "No se pudo comprobar si hay actualizaciones.";
+            SetStatus("update.check_failed");
             LogService.Log($"[UpdateService] ERROR al buscar actualizaciones: {ex.Message}");
         }
         finally
@@ -104,14 +120,14 @@ public class UpdateService : INotifyPropertyChanged, IDisposable
         IsBusy = true;
         try
         {
-            await _manager.DownloadUpdatesAsync(_pendingUpdate, progress => Status = $"Descargando actualización... {progress}%");
-            Status = "Instalando y reiniciando...";
+            await _manager.DownloadUpdatesAsync(_pendingUpdate, progress => SetStatus("update.downloading", progress));
+            SetStatus("update.installing");
             LogService.Log($"[UpdateService] Aplicando actualización {AvailableVersion} y reiniciando.");
             _manager.ApplyUpdatesAndRestart(_pendingUpdate);
         }
         catch (Exception ex)
         {
-            Status = "No se pudo descargar la actualización. Inténtalo de nuevo más tarde.";
+            SetStatus("update.download_failed");
             LogService.Log($"[UpdateService] ERROR al descargar/aplicar la actualización: {ex.Message}");
             IsBusy = false;
         }

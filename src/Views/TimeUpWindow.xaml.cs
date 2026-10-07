@@ -12,8 +12,6 @@ public partial class TimeUpWindow : Window
     {
         InitializeComponent();
 
-        MessageText.Text = canExtend
-            ? "Llevas un buen rato sin parar. Descansa la vista o pide 5 minutos más desde las opciones junto al personaje."
-            : "Ya usaste la prórroga. Es hora de descansar: pulsa \"Descansar\" junto al personaje.";
+        MessageText.Text = Services.LocalizationService.Get(canExtend ? "timeup.can_extend" : "timeup.no_extend");
     }
 }

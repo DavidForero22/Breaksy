@@ -1,7 +1,8 @@
 <Window x:Class="Breaksy.Views.TimeUpWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="¡Se acabó el tiempo!"
+        xmlns:local="clr-namespace:Breaksy.Views"
+        Title="{local:Loc timeup.title}"
         WindowStyle="None"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
@@ -25,7 +26,7 @@
 
         <StackPanel Margin="40,30"
                     Width="420">
-            <TextBlock Text="⏰ ¡Se acabó el tiempo!"
+            <TextBlock Text="{local:Loc timeup.heading}"
                        FontSize="28"
                        FontWeight="Bold"
                        Foreground="#E53935"

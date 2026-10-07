@@ -58,12 +58,8 @@ public partial class MainWindow : Window
         _settingsService.IsKeyboardBlockAvailable = false;
         MessageBox.Show(
             this,
-            "Windows no ha permitido registrar el bloqueo de teclado.\n\n" +
-            $"Detalle: {_keyboardHook.LastError}\n\n" +
-            "Breaksy seguirá funcionando (avisos, voces y ventanas de bloqueo), " +
-            "pero el teclado no se bloqueará durante los descansos.\n\n" +
-            "Prueba a reiniciar la aplicación o a ejecutarla con los mismos permisos que tus otras aplicaciones.",
-            "Breaksy - Bloqueo de teclado no disponible",
+            LocalizationService.Format("keyboard.message", _keyboardHook.LastError ?? string.Empty),
+            LocalizationService.Get("keyboard.title"),
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
     }
@@ -108,8 +104,8 @@ public partial class MainWindow : Window
                 // El resto del ciclo (voces, ventanas de bloqueo) sigue funcionando sin teclado bloqueado
                 _keyboardHook.SuppressKeys = false;
                 _settingsService.IsKeyboardBlockAvailable = false;
-                _trayIcon.ShowWarning("Breaksy: bloqueo de teclado no disponible",
-                    "No se pudo bloquear el teclado. El descanso continúa sin bloqueo.");
+                _trayIcon.ShowWarning(LocalizationService.Get("tray.keyboard_title"),
+                    LocalizationService.Get("tray.keyboard_text"));
             }
         }
         else

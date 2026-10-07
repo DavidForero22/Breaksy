@@ -13,6 +13,9 @@ public class TrayIconService : IDisposable
     private readonly MainViewModel _viewModel;
     private readonly NotifyIcon _notifyIcon;
 
+    private ToolStripMenuItem _showItem = null!;
+    private readonly ToolStripMenuItem _settingsItem = new();
+    private readonly ToolStripMenuItem _closeItem = new();
     private readonly ToolStripMenuItem _toggleItem = new();
     private readonly ToolStripMenuItem _pauseItem = new();
     private readonly ToolStripMenuItem _updateItem = new() { Visible = false };
@@ -27,7 +30,7 @@ public class TrayIconService : IDisposable
         var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "icon", "icon.ico");
         var menu = new ContextMenuStrip();
 
-        var showItem = new ToolStripMenuItem("Mostrar personaje", null, (_, _) => showCharacterAction());
+        var showItem = _showItem = new ToolStripMenuItem(null, null, (_, _) => showCharacterAction());
         showItem.Font = new System.Drawing.Font(showItem.Font, System.Drawing.FontStyle.Bold);
 
         _toggleItem.Click += (_, _) => ToggleActive();
@@ -40,9 +43,11 @@ public class TrayIconService : IDisposable
         menu.Items.Add(_toggleItem);
         menu.Items.Add(_pauseItem);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Configuración", null, (_, _) => _viewModel.OpenSettingsCommand.Execute(null));
+        _settingsItem.Click += (_, _) => _viewModel.OpenSettingsCommand.Execute(null);
+        _closeItem.Click += (_, _) => _viewModel.CloseCommand.Execute(null);
+        menu.Items.Add(_settingsItem);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Cerrar Breaksy", null, (_, _) => _viewModel.CloseCommand.Execute(null));
+        menu.Items.Add(_closeItem);
 
         // Refrescar textos y disponibilidad justo antes de mostrar el menú
         menu.Opening += (_, _) => UpdateMenuItems();
@@ -80,7 +85,10 @@ public class TrayIconService : IDisposable
     private void UpdateMenuItems()
     {
         // Durante bloqueos y descanso no se puede desactivar (CanStart y CanDisable son falsos)
-        _toggleItem.Text = _viewModel.CanStart ? "Activar" : "Desactivar";
+        _showItem.Text = LocalizationService.Get("menu.show_character");
+        _settingsItem.Text = LocalizationService.Get("menu.settings");
+        _closeItem.Text = LocalizationService.Get("menu.close");
+        _toggleItem.Text = LocalizationService.Get(_viewModel.CanStart ? "menu.activate" : "menu.deactivate");
         _toggleItem.Enabled = _viewModel.CanStart || _viewModel.CanDisable;
 
         _pauseItem.Text = _viewModel.PauseMenuHeader;
@@ -88,7 +96,7 @@ public class TrayIconService : IDisposable
 
         _updateItem.Visible = _updates.IsUpdateAvailable;
         _updateItem.Enabled = !_updates.IsBusy;
-        _updateItem.Text = $"Actualizar a la versión {_updates.AvailableVersion}";
+        _updateItem.Text = LocalizationService.Format("menu.update_to", _updates.AvailableVersion ?? string.Empty);
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -106,8 +114,8 @@ public class TrayIconService : IDisposable
 
     private void OnUpdateFound(string version)
     {
-        _notifyIcon.ShowBalloonTip(8000, "Breaksy: actualización disponible",
-            $"La versión {version} está lista para instalarse. Pulsa aquí para ver los detalles.",
+        _notifyIcon.ShowBalloonTip(8000, LocalizationService.Get("tray.update_title"),
+            LocalizationService.Format("tray.update_text", version),
             ToolTipIcon.Info);
     }
 

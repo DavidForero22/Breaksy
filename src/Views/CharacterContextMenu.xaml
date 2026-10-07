@@ -1,6 +1,7 @@
 <ContextMenu x:Class="Breaksy.Views.CharacterContextMenu"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Breaksy.Views">
 
         <MenuItem Header="{Binding PauseMenuHeader}"
                         Command="{Binding PauseCommand}"
@@ -9,9 +10,9 @@
                         Command="{Binding ToggleActivationCommand}"
                         IsEnabled="{Binding CanToggleActivation}"/>
         <Separator/>
-        <MenuItem Header="Configuración"
+        <MenuItem Header="{local:Loc menu.settings}"
                         Command="{Binding OpenSettingsCommand}"/>
         <Separator/>
-        <MenuItem Header="Cerrar Breaksy"
+        <MenuItem Header="{local:Loc menu.close}"
                         Command="{Binding CloseCommand}"/>
 </ContextMenu>

@@ -14,15 +14,30 @@ public class SettingsViewModel : INotifyPropertyChanged
 {
     private readonly SettingsService _settings;
 
-    public IReadOnlyList<InterruptionLevelOption> InterruptionLevels { get; } =
+    // Se vuelve a crear al cambiar de idioma para que los nombres y descripciones se traduzcan
+    public IReadOnlyList<InterruptionLevelOption> InterruptionLevels { get; private set; } = BuildInterruptionLevels();
+
+    private static InterruptionLevelOption[] BuildInterruptionLevels() =>
     [
-        new(InterruptionLevel.Light, "Ligero",
-            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones."),
-        new(InterruptionLevel.Intermediate, "Intermedio",
-            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones y el teclado se bloquea hasta terminar el descanso."),
-        new(InterruptionLevel.Strict, "Estricto",
-            "El personaje cambia de estado y te avisa por voz. Cuando se acaba el tiempo aparece la ventana de opciones, el teclado se bloquea hasta terminar el descanso, y se muestra una ventana de advertencia en el centro de la pantalla.")
+        new(InterruptionLevel.Light, LocalizationService.Get("level.light"), LocalizationService.Get("level.light_desc")),
+        new(InterruptionLevel.Intermediate, LocalizationService.Get("level.intermediate"), LocalizationService.Get("level.intermediate_desc")),
+        new(InterruptionLevel.Strict, LocalizationService.Get("level.strict"), LocalizationService.Get("level.strict_desc"))
     ];
+
+    public IReadOnlyList<LanguageInfo> Languages => LocalizationService.Languages;
+
+    public LanguageInfo SelectedLanguage
+    {
+        get => Languages.First(l => l.Code == _settings.Language);
+        set { if (value != null) _settings.Language = value.Code; }
+    }
+
+    private void RefreshLanguageTexts()
+    {
+        InterruptionLevels = BuildInterruptionLevels();
+        OnPropertyChanged(nameof(InterruptionLevels));
+        OnPropertyChanged(nameof(SelectedInterruptionLevel));
+    }
 
     public InterruptionLevelOption SelectedInterruptionLevel
     {
@@ -161,7 +176,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         if (!File.Exists(path))
         {
             LogService.Log($"[Settings] No se encontró la guía de personalización en '{path}'.");
-            System.Windows.MessageBox.Show("No se ha encontrado la guía de personalización junto a la aplicación.",
+            System.Windows.MessageBox.Show(LocalizationService.Get("msg.guide_missing"),
                 "Breaksy", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }

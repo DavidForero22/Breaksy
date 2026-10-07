@@ -21,13 +21,13 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _imagePath = string.Empty;
     public string ImagePath { get => _imagePath; set => SetProperty(ref _imagePath, value); }
 
-    private string _stateText = "Estado: Idle";
+    private string _stateText = string.Empty;
     public string StateText { get => _stateText; set => SetProperty(ref _stateText, value); }
 
     private string _timeText = "--:--";
     public string TimeText { get => _timeText; set => SetProperty(ref _timeText, value); }
 
-    private string _pauseMenuHeader = "Pausar";
+    private string _pauseMenuHeader = string.Empty;
     public string PauseMenuHeader { get => _pauseMenuHeader; set => SetProperty(ref _pauseMenuHeader, value); }
 
     private bool _canStart = true;
@@ -40,7 +40,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     public bool CanDisable { get => _canDisable; set => SetProperty(ref _canDisable, value); }
 
     // Opción Activar/Desactivar del menú del personaje
-    private string _activationMenuHeader = "Desactivar";
+    private string _activationMenuHeader = string.Empty;
     public string ActivationMenuHeader { get => _activationMenuHeader; set => SetProperty(ref _activationMenuHeader, value); }
 
     private bool _canToggleActivation;
@@ -94,6 +94,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
         UpdateVisuals(_stateMachine.CurrentState);
         WatchCharacterFolder();
+        LocalizationService.Subscribe(this, vm => vm.UpdateTexts(vm._stateMachine.CurrentState));
     }
 
     // Si cambian los sprites del estado actual (desde el editor o a mano) se vuelve a elegir la imagen
@@ -178,13 +179,19 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         CanStart = state is BreaksyState.Idle or BreaksyState.Disabled or BreaksyState.Waiting;
         CanPause = state is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning
             or BreaksyState.Paused;
-        PauseMenuHeader = state == BreaksyState.Paused ? "Reanudar" : "Pausar";
+        UpdateTexts(state);
         CanDisable = state is not (BreaksyState.Blocked1 or BreaksyState.Blocked2 or BreaksyState.Sleeping or BreaksyState.Disabled);
-        ActivationMenuHeader = state == BreaksyState.Disabled ? "Activar" : "Desactivar";
         CanToggleActivation = CanDisable || state == BreaksyState.Disabled;
 
-        StateText = string.Format(LocalizationService.Get("state.label"), LocalizationService.StateName(state));
         ImagePath = _imageService.GetImagePathForState(state);
+    }
+
+    // Textos que dependen del estado y del idioma
+    private void UpdateTexts(BreaksyState state)
+    {
+        PauseMenuHeader = LocalizationService.Get(state == BreaksyState.Paused ? "menu.resume" : "menu.pause");
+        ActivationMenuHeader = LocalizationService.Get(state == BreaksyState.Disabled ? "menu.activate" : "menu.deactivate");
+        StateText = LocalizationService.Format("state.label", LocalizationService.StateName(state));
     }
 
     public void Dispose()

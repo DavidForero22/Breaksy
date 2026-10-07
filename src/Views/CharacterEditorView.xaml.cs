@@ -51,7 +51,7 @@ public partial class CharacterEditorView : UserControl
             return;
 
         if (slot.AddFiles(files) > 0)
-            MessageBox.Show($"Algún archivo no se ha añadido: solo se admiten {slot.FormatsText} y hasta {AssetListViewModel.MaxSlots} por lista.",
+            MessageBox.Show(Services.LocalizationService.Format("editor.rejected", slot.FormatsText, AssetListViewModel.MaxSlots),
                 "Breaksy", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

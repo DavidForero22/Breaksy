@@ -1,7 +1,8 @@
 <Window x:Class="Breaksy.Views.DebugConsoleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Consola de depuración - Breaksy"
+        xmlns:local="clr-namespace:Breaksy.Views"
+        Title="{local:Loc debug.title}"
         Width="920"
         Height="400"
         MinWidth="400"
@@ -24,7 +25,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="CONSOLA DE DEPURACIÓN"
+        <TextBlock Text="{local:Loc debug.header}"
                    FontSize="11"
                    FontWeight="Bold"
                    Foreground="{StaticResource AccentBrush}"
@@ -34,10 +35,10 @@
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button x:Name="CopyButton"
-                    Content="Copiar todo"
+                    Content="{local:Loc debug.copy_all}"
                     Style="{StaticResource SecondaryButton}"
                     Click="OnCopyClick"
-                    ToolTip="Copiar todos los registros al portapapeles"
+                    ToolTip="{local:Loc debug.copy_tip}"
                     FontSize="11"
                     Padding="10,3"
                     VerticalAlignment="Center"
@@ -46,12 +47,12 @@
             <Button Content="&#xE921;"
                     Style="{StaticResource MinimizeButton}"
                     Click="OnMinimizeClick"
-                    ToolTip="Minimizar"
+                    ToolTip="{local:Loc common.minimize}"
                     WindowChrome.IsHitTestVisibleInChrome="True"/>
             <Button Content="&#xE8BB;"
                     Style="{StaticResource TitleBarButton}"
                     Click="OnCloseClick"
-                    ToolTip="Cerrar"
+                    ToolTip="{local:Loc common.close}"
                     WindowChrome.IsHitTestVisibleInChrome="True"/>
         </StackPanel>
 

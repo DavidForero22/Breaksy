@@ -35,17 +35,17 @@ public partial class DebugConsoleWindow : Window
         try
         {
             Clipboard.SetText(LogText.Text);
-            CopyButton.Content = "¡Copiado!";
+            CopyButton.Content = LocalizationService.Get("debug.copied");
         }
         catch (Exception ex)
         {
             // El portapapeles puede estar bloqueado momentáneamente por otra aplicación
             LogService.Log($"[DebugConsole] ERROR al copiar al portapapeles: {ex.Message}");
-            CopyButton.Content = "Error al copiar";
+            CopyButton.Content = LocalizationService.Get("debug.copy_error");
         }
 
         await Task.Delay(1500);
-        CopyButton.Content = "Copiar todo";
+        LocalizationSource.Bind(CopyButton, ContentProperty, "debug.copy_all");
     }
 
     private void OnMinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

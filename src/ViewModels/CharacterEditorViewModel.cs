@@ -43,16 +43,16 @@ public class CharacterEditorViewModel : ObservableBase
         // Las carpetas coinciden con las que lee VoiceService
         SoundEventOption[] Steps(string folder) =>
         [
-            new("Inicio", $@"voices\{folder}\step_1"),
-            new("Quedan 40 s", $@"voices\{folder}\step_2"),
-            new("Quedan 20 s", $@"voices\{folder}\step_3")
+            new("event.start", $@"voices\{folder}\step_1"),
+            new("event.left_40", $@"voices\{folder}\step_2"),
+            new("event.left_20", $@"voices\{folder}\step_3")
         ];
 
         SoundEventOption[] Blocked(string folder) =>
         [
-            new("Al bloquearse", $@"voices\{folder}\enter"),
-            new("Tras 1 minuto", $@"voices\{folder}\1_min"),
-            new("Tras 5 minutos", $@"voices\{folder}\5_min")
+            new("event.on_block", $@"voices\{folder}\enter"),
+            new("event.after_1", $@"voices\{folder}\1_min"),
+            new("event.after_5", $@"voices\{folder}\5_min")
         ];
 
         States =
@@ -61,10 +61,10 @@ public class CharacterEditorViewModel : ObservableBase
             new(BreaksyState.Idle, []),
             new(BreaksyState.Awaken,
             [
-                new("Desde inactivo", @"voices\awaken\from_idle"),
-                new("Desde desactivado", @"voices\awaken\from_disabled"),
-                new("Tras «5 minutos más»", @"voices\awaken\from_blocked1"),
-                new("Tras el descanso", @"voices\awaken\from_waiting")
+                new("event.from_idle", @"voices\awaken\from_idle"),
+                new("event.from_disabled", @"voices\awaken\from_disabled"),
+                new("event.from_extension", @"voices\awaken\from_blocked1"),
+                new("event.from_rest", @"voices\awaken\from_waiting")
             ]),
             new(BreaksyState.Paused, []),
             new(BreaksyState.Warning, Steps("warning")),
@@ -79,15 +79,18 @@ public class CharacterEditorViewModel : ObservableBase
     }
 }
 
-public class SoundEventOption
+public class SoundEventOption : ObservableBase
 {
-    public string Label { get; }
+    private readonly string _labelKey;
+
+    public string Label => LocalizationService.Get(_labelKey);
     public AssetListViewModel Assets { get; }
 
-    public SoundEventOption(string label, string relativeDir)
+    public SoundEventOption(string labelKey, string relativeDir)
     {
-        Label = label;
+        _labelKey = labelKey;
         Assets = new AssetListViewModel(relativeDir, AssetKind.Sound);
+        LocalizationService.Subscribe(this, o => o.OnPropertyChanged(nameof(Label)));
     }
 }
 
@@ -204,8 +207,8 @@ public class AssetListViewModel
         var patterns = (_kind == AssetKind.Image ? ImageExtensions : SoundExtensions).Select(e => "*" + e);
         var dialog = new OpenFileDialog
         {
-            Title = _kind == AssetKind.Image ? "Elegir imagen" : "Elegir sonido",
-            Filter = $"{(_kind == AssetKind.Image ? "Imágenes" : "Sonidos")} ({FormatsText})|{string.Join(";", patterns)}",
+            Title = LocalizationService.Get(_kind == AssetKind.Image ? "editor.choose_image" : "editor.choose_sound"),
+            Filter = $"{LocalizationService.Get(_kind == AssetKind.Image ? "editor.images_filter" : "editor.sounds_filter")} ({FormatsText})|{string.Join(";", patterns)}",
             Multiselect = true
         };
 

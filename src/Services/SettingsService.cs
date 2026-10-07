@@ -20,6 +20,7 @@ public class SettingsService : INotifyPropertyChanged
     // Lo que se guarda en disco; los nombres no deben cambiar para no perder la configuración
     private class PersistedSettings
     {
+        public string Language { get; set; } = LocalizationService.DefaultLanguage;
         public bool IsMuted { get; set; }
         public bool IsSoundMuted { get; set; }
         public bool ShowState { get; set; } = true;
@@ -53,6 +54,7 @@ public class SettingsService : INotifyPropertyChanged
             if (data == null) return;
 
             _loading = true;
+            Language = data.Language;
             IsMuted = data.IsMuted;
             IsSoundMuted = data.IsSoundMuted;
             ShowState = data.ShowState;
@@ -81,6 +83,7 @@ public class SettingsService : INotifyPropertyChanged
             Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
             var data = new PersistedSettings
             {
+                Language = Language,
                 IsMuted = IsMuted,
                 IsSoundMuted = IsSoundMuted,
                 ShowState = ShowState,
@@ -119,6 +122,21 @@ public class SettingsService : INotifyPropertyChanged
     {
         get => _sleepSeconds;
         set { if (_sleepSeconds != value) { _sleepSeconds = value; OnPropertyChanged(); } }
+    }
+
+    private string _language = LocalizationService.DefaultLanguage;
+    /// <summary>Idioma de la interfaz (código, p. ej. "en" o "es").</summary>
+    public string Language
+    {
+        get => _language;
+        set
+        {
+            if (!LocalizationService.Languages.Any(l => l.Code == value)) value = LocalizationService.DefaultLanguage;
+            if (_language == value) return;
+            _language = value;
+            LocalizationService.SetLanguage(value);
+            OnPropertyChanged();
+        }
     }
 
     private bool _isMuted = false;

@@ -1,6 +1,7 @@
 <UserControl x:Class="Breaksy.Views.CharacterEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Breaksy.Views">
 
     <UserControl.Resources>
         <!-- Botón pequeño Imagen / Sonido; se resalta el modo abierto -->
@@ -28,7 +29,7 @@
                     MouseLeftButtonUp="OnSlotClick">
                 <Grid>
                     <TextBlock x:Name="Hint"
-                               Text="Elegir o arrastrar archivo"
+                               Text="{local:Loc editor.pick_or_drop}"
                                Foreground="{StaticResource SubtleTextBrush}"
                                TextWrapping="Wrap"
                                TextAlignment="Center"
@@ -56,7 +57,7 @@
                                    Visibility="Collapsed"/>
                         <Button Content="&#xE711;"
                                 Command="{Binding RemoveCommand}"
-                                ToolTip="Quitar"
+                                ToolTip="{local:Loc editor.remove}"
                                 Width="22"
                                 Height="22"
                                 Margin="0,2,2,0"
@@ -111,11 +112,11 @@
                 <StackPanel Margin="0,14,0,0">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Button x:Name="ImageButton"
-                                Content="Imagen"
+                                Content="{local:Loc editor.image}"
                                 Style="{StaticResource ModeButton}"
                                 Command="{Binding ToggleImageCommand}"/>
                         <Button x:Name="SoundButton"
-                                Content="Sonido"
+                                Content="{local:Loc editor.sound}"
                                 Style="{StaticResource ModeButton}"
                                 Command="{Binding ToggleSoundCommand}"
                                 IsEnabled="{Binding HasSounds}"/>
@@ -123,9 +124,9 @@
 
                     <!-- Imágenes -->
                     <StackPanel x:Name="ImagePanel" Visibility="Collapsed">
-                        <TextBlock Text="{Binding Images.FormatsText, StringFormat=Formatos: {0}}"
-                                   Style="{StaticResource OptionDescription}"
-                                   Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource OptionDescription}" Margin="0,0,0,8">
+                            <Run Text="{local:Loc editor.formats}"/><Run Text="{Binding Images.FormatsText, Mode=OneWay}"/>
+                        </TextBlock>
                         <ItemsControl ItemsSource="{Binding Images.Slots}"
                                       Style="{StaticResource SlotList}"/>
                     </StackPanel>
@@ -137,9 +138,9 @@
                                  DisplayMemberPath="Label"
                                  Style="{StaticResource SegmentedControl}"
                                  Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding SelectedSoundEvent.Assets.FormatsText, StringFormat=Formatos: {0}}"
-                                   Style="{StaticResource OptionDescription}"
-                                   Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource OptionDescription}" Margin="0,0,0,8">
+                            <Run Text="{local:Loc editor.formats}"/><Run Text="{Binding SelectedSoundEvent.Assets.FormatsText, Mode=OneWay}"/>
+                        </TextBlock>
                         <ItemsControl ItemsSource="{Binding SelectedSoundEvent.Assets.Slots}"
                                       Style="{StaticResource SlotList}"/>
                     </StackPanel>
