@@ -1,6 +1,9 @@
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Breaksy.Models;
 using Breaksy.Services;
 
@@ -12,6 +15,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly CharacterImageService _imageService;
     private readonly SettingsService _settings;
     private readonly Action _closeAction;
+    private FileSystemWatcher? _watcher;
+    private DispatcherTimer? _refreshTimer;
 
     private string _imagePath = string.Empty;
     public string ImagePath { get => _imagePath; set => SetProperty(ref _imagePath, value); }
@@ -63,6 +68,52 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _stateMachine.Tick += OnTick;
 
         UpdateVisuals(_stateMachine.CurrentState);
+        WatchCharacterFolder();
+    }
+
+    // Si cambian los sprites del estado actual (desde el editor o a mano) se vuelve a elegir la imagen
+    private void WatchCharacterFolder()
+    {
+        try
+        {
+            var folder = Path.Combine(AssetPaths.UserRoot, "character");
+            Directory.CreateDirectory(folder);
+
+            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+            _refreshTimer.Tick += (_, _) =>
+            {
+                _refreshTimer.Stop();
+                ImagePath = _imageService.GetImagePathForState(_stateMachine.CurrentState);
+            };
+
+            _watcher = new FileSystemWatcher(folder)
+            {
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
+            };
+            _watcher.Created += OnCharacterFilesChanged;
+            _watcher.Deleted += OnCharacterFilesChanged;
+            _watcher.Renamed += OnCharacterFilesChanged;
+            _watcher.EnableRaisingEvents = true;
+        }
+        catch (Exception ex)
+        {
+            LogService.Log($"[MainViewModel] ERROR al vigilar la carpeta de imágenes: {ex.Message}");
+        }
+    }
+
+    private void OnCharacterFilesChanged(object sender, FileSystemEventArgs e)
+    {
+        var stateKey = CharacterImageService.GetStateKey(_stateMachine.CurrentState);
+        var relative = Path.GetRelativePath(Path.Combine(AssetPaths.UserRoot, "character"), e.FullPath);
+        if (!relative.StartsWith(stateKey + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) return;
+
+        // Los eventos llegan en otro hilo; el temporizador espera a que termine la copia y agrupa los avisos
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            _refreshTimer?.Stop();
+            _refreshTimer?.Start();
+        });
     }
 
     private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
@@ -113,6 +164,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
         _stateMachine.StateChanged -= OnStateChanged;
         _stateMachine.Tick -= OnTick;
         _settings.PropertyChanged -= OnSettingsChanged;
+        _refreshTimer?.Stop();
+        _watcher?.Dispose();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

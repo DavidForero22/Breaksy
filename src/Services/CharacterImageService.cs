@@ -22,26 +22,29 @@ public class CharacterImageService
     private static bool IsSupportedImage(string file) =>
         SupportedExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Nombre de la carpeta de imágenes de un estado (character\{clave}).</summary>
+    public static string GetStateKey(BreaksyState state) => state switch
+    {
+        BreaksyState.Disabled => "disabled",
+        BreaksyState.Idle => "idle",
+        BreaksyState.Awaken => "awaken",
+        BreaksyState.Paused => "paused",
+        BreaksyState.Warning => "warning",
+        BreaksyState.SeriousWarning => "serious_warning",
+        BreaksyState.Blocked1 => "blocked_1",
+        BreaksyState.Blocked2 => "blocked_2",
+        BreaksyState.Sleeping => "sleeping",
+        BreaksyState.Waiting => "waiting",
+        _ => "fallback"
+    };
+
     /// <summary>
     /// Devuelve la ruta de una imagen al azar de la carpeta del estado.
     /// Si no hay, busca la plantilla específica en fallback/{estado}.*
     /// </summary>
     public string GetImagePathForState(BreaksyState state)
     {
-        string stateKey = state switch
-        {
-            BreaksyState.Disabled => "disabled",
-            BreaksyState.Idle => "idle",
-            BreaksyState.Awaken => "awaken",
-            BreaksyState.Paused => "paused",
-            BreaksyState.Warning => "warning",
-            BreaksyState.SeriousWarning => "serious_warning",
-            BreaksyState.Blocked1 => "blocked_1",
-            BreaksyState.Blocked2 => "blocked_2",
-            BreaksyState.Sleeping => "sleeping",
-            BreaksyState.Waiting => "waiting",
-            _ => "fallback"
-        };
+        string stateKey = GetStateKey(state);
 
         // Buscar imágenes en la carpeta del estado (primero las del usuario, luego las de serie)
         var files = AssetPaths.FindFiles(Path.Combine("character", stateKey), "*.*", IsSupportedImage);
