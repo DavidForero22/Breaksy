@@ -155,15 +155,15 @@ public partial class MainWindow : Window
         // No modal y de instancia única, para poder usar la consola de depuración a la vez
         if (_settingsWindow != null)
         {
+            if (_settingsWindow.WindowState == WindowState.Minimized)
+                _settingsWindow.WindowState = WindowState.Normal;
             _settingsWindow.Activate();
             return;
         }
 
+        // Sin propietario: una ventana con Owner se queda siempre por encima de la del personaje (Topmost)
         var settingsViewModel = new SettingsViewModel(_settingsService, _stateMachine, _updateService);
-        _settingsWindow = new SettingsWindow(settingsViewModel)
-        {
-            Owner = this
-        };
+        _settingsWindow = new SettingsWindow(settingsViewModel);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
     }
