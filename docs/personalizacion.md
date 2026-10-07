@@ -1,12 +1,14 @@
 # Guía de personalización
 
-Breaksy permite cambiar las imágenes del personaje y las voces que reproduce sin tocar el código: basta con colocar archivos en la **carpeta de personalización**:
+Breaksy permite cambiar las imágenes del personaje, sus voces y sonidos, y los textos de la interfaz sin tocar el código: basta con colocar archivos en la **carpeta de personalización**:
 
 ```
 %AppData%\Breaksy\assets\
 ```
 
-La forma más fácil de llegar a ella es **Configuración → Personalización → Abrir carpeta**, que además crea todas las subcarpetas vacías para que veas dónde va cada archivo. Los cambios se aplican la próxima vez que el personaje cambie de estado.
+La forma más fácil de llegar a ella es **Configuración → Personalización → Abrir carpeta**, que además crea todas las subcarpetas vacías para que veas dónde va cada archivo. Los cambios se aplican la próxima vez que el personaje cambie de estado (las imágenes del estado actual se actualizan al momento).
+
+> **Editor de personaje.** En **Configuración → Personalización** hay un editor integrado: eliges un estado, pulsas **Imagen** o **Sonido** y añades archivos (con clic o arrastrándolos) hasta un máximo de 30 por lista. El editor copia los archivos a las mismas carpetas que se describen aquí, así que ambos métodos son equivalentes y se pueden combinar.
 
 > Esta carpeta **no se toca al actualizar Breaksy**. No modifiques la carpeta `assets\` que hay junto a `Breaksy.exe` (los archivos de serie): se sustituye por completo en cada actualización.
 
@@ -38,28 +40,46 @@ La forma más fácil de llegar a ella es **Configuración → Personalización �
 
 **Fallback:** si la carpeta de un estado está vacía (tanto la tuya como la de serie), se usa `character\fallback\<estado>.<ext>` (por ejemplo `fallback/warning.png`). Si tampoco existe, se muestra un recuadro en blanco.
 
-## Voces
+## Audio: voces y sonidos
 
-**Ruta:** `%AppData%\Breaksy\assets\voices\<evento>\`
+**Ruta:** `%AppData%\Breaksy\assets\audio\<estado>\<evento>\`
 **Formatos:** `.mp3`, `.wav`.
-Las voces no suenan si está activada la opción de silenciar sonidos en la configuración.
 
-### Al empezar o reanudar el trabajo (`awaken/`)
+Todos los audios viven bajo `audio\`, pero Breaksy los distingue en dos tipos, que se activan o desactivan por separado en **Configuración → Aplicación**:
+
+| Tipo | Qué es | Se controla con |
+|---|---|---|
+| **Voz** | Líneas que dice el personaje al avisar o al cambiar de estado. | **Reproducir voces** |
+| **Sonido** | Efectos que no son voces: la alarma y los sonidos de pausar, reanudar, desactivar y volver de desactivado. | **Reproducir sonidos** |
+
+El tipo lo decide Breaksy según la carpeta, no el contenido del archivo. En las tablas siguientes cada carpeta indica si es voz o sonido.
+
+### Al empezar o reanudar el trabajo (`audio\awaken\`)
 
 Suenan al entrar en Awaken, según desde dónde se llegue:
 
-| Carpeta | Cuándo suena |
-|---|---|
-| `awaken/from_idle/` | Primer clic tras abrir la app. |
-| `awaken/from_disabled/` | Se reactiva Breaksy después de haberlo desactivado. |
-| `awaken/from_blocked1/` | El usuario pulsa "¡5 minutos más!" en el primer bloqueo. |
-| `awaken/from_waiting/` | El usuario hace clic tras el descanso para empezar un nuevo ciclo. |
+| Carpeta | Tipo | Cuándo suena |
+|---|---|---|
+| `awaken/from_idle/` | Voz | Primer clic tras abrir la app. |
+| `awaken/from_disabled/` | **Sonido** | Se reactiva Breaksy después de haberlo desactivado. |
+| `awaken/from_blocked1/` | Voz | El usuario pulsa "¡5 minutos más!" en el primer bloqueo. |
+| `awaken/from_waiting/` | Voz | El usuario hace clic tras el descanso para empezar un nuevo ciclo. |
 
-> Reanudar desde una pausa no reproduce ninguna voz.
+> Reanudar desde una pausa no reproduce ninguna voz (tiene su propio sonido, ver más abajo).
+
+### Pausar, reanudar y desactivar (sonidos)
+
+| Carpeta | Tipo | Cuándo suena |
+|---|---|---|
+| `paused/pause/` | Sonido | El usuario pausa el temporizador. |
+| `paused/resume/` | Sonido | El usuario quita la pausa y el conteo continúa. |
+| `disabled/disable/` | Sonido | El usuario desactiva Breaksy. |
+
+Estos sonidos **no traen archivos de serie**: si la carpeta está vacía no suena nada (no se usa ningún fallback). Basta con añadir tus propios `.mp3` o `.wav`.
 
 ### Avisos (`warning/` y `serious_warning/`)
 
-Ambas fases duran 1 minuto y tienen tres momentos:
+Todos son voces. Ambas fases duran 1 minuto y tienen tres momentos:
 
 | Carpeta | Cuándo suena |
 |---|---|
@@ -74,6 +94,8 @@ Conviene que las frases de `serious_warning` suenen más impacientes que las de 
 
 ### Bloqueos (`blocked_1/` y `blocked_2/`)
 
+Todos son voces.
+
 | Carpeta | Cuándo suena |
 |---|---|
 | `blocked_1/enter/` | Al bloquearse la pantalla por primera vez. |
@@ -83,11 +105,41 @@ Conviene que las frases de `serious_warning` suenen más impacientes que las de 
 | `blocked_2/1_min/` | Lleva 1 minuto en el bloqueo definitivo sin descansar. |
 | `blocked_2/5_min/` | Lleva 5 minutos en el bloqueo definitivo. |
 
-**Fallback:** si la carpeta de un evento está vacía (tanto la tuya como la de serie), se reproduce `voices\system\fallback.mp3` (o `fallback.wav`). Si tampoco existe, no suena nada.
+### Archivos del sistema (`audio/system/`)
+
+| Archivo | Tipo | Para qué sirve |
+|---|---|---|
+| `fallback.mp3` (o `.wav`) | Voz | Se reproduce cuando la carpeta de una **voz** está vacía (tanto la tuya como la de serie). Si tampoco existe, no suena nada. |
+| `wakeup_alarm.wav` | Sonido | Alarma que se repite en bucle cuando termina el descanso (estado Waiting), hasta que el usuario empieza un nuevo ciclo. |
+
+El fallback solo se aplica a las voces; los sonidos con la carpeta vacía simplemente no suenan.
+
+## Idioma de la interfaz
+
+El idioma se elige en **Configuración → General → Idioma** (English o Español). Por defecto es inglés y la elección se recuerda al cerrar la app.
+
+Los textos de la interfaz están en archivos JSON, uno por idioma:
+
+```
+%AppData%\Breaksy\assets\lang\en.json
+%AppData%\Breaksy\assets\lang\es.json
+```
+
+Para cambiar un texto, copia el archivo del idioma desde la carpeta `assets\lang\` que hay junto a `Breaksy.exe` a la carpeta anterior y edita los valores. Cada línea tiene la forma `"clave": "texto"`:
+
+- **No cambies las claves**, solo los textos de la derecha.
+- Los marcadores como `{0}` se sustituyen por valores (por ejemplo un número de versión): consérvalos en el texto.
+- `\n` es un salto de línea.
+- Si tu archivo no incluye una clave, se usa el texto en inglés; y si falta también ahí, se muestra la propia clave.
+- Igual que con las imágenes y los audios, tu archivo se usa **en lugar** del de serie, y se conserva al actualizar Breaksy. Cambia de idioma o reinicia Breaksy para ver los cambios.
+
+Los nombres de los estados del personaje (Trabajando, Pausado…) están en las claves `state.*`.
+
+> De momento solo se pueden elegir English y Español: añadir un archivo con otro código de idioma no lo hace aparecer en la lista.
 
 ## Estructura completa de ejemplo
 
-Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `system`, que puedes añadir tú si quieres cambiar los archivos por defecto):
+Es la estructura que crea **Abrir carpeta** (salvo `fallback`, `system` y `lang`, que puedes añadir tú si quieres cambiar los archivos por defecto o los textos):
 
 ```
 %AppData%\Breaksy\assets\
@@ -103,8 +155,9 @@ Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `system`, que pu
 │   ├── blocked_2/
 │   ├── sleeping/
 │   └── waiting/
-└── voices/
-    ├── system/
+├── lang/                  # Textos de la interfaz: en.json, es.json
+└── audio/
+    ├── system/            # fallback.mp3, wakeup_alarm.wav
     ├── awaken/
     │   ├── from_idle/
     │   ├── from_disabled/
@@ -122,12 +175,17 @@ Es la estructura que crea **Abrir carpeta** (salvo `fallback` y `system`, que pu
     │   ├── enter/
     │   ├── 1_min/
     │   └── 5_min/
-    └── blocked_2/
-        ├── enter/
-        ├── 1_min/
-        └── 5_min/
+    ├── blocked_2/
+    │   ├── enter/
+    │   ├── 1_min/
+    │   └── 5_min/
+    ├── paused/
+    │   ├── pause/
+    │   └── resume/
+    └── disabled/
+        └── disable/
 ```
 
 ## Comprobar los cambios
 
-Si algo no aparece como esperas, revisa el registro de la aplicación: `CharacterImageService` y `VoiceService` indican qué archivo han cargado o si han tenido que usar el fallback. El menú de pruebas de las opciones de desarrollador permite forzar estados sin esperar los 20 minutos.
+Si algo no aparece como esperas, revisa el registro de la aplicación: `CharacterImageService` y `VoiceService` indican qué archivo han cargado, si era voz o sonido, o si han tenido que usar el fallback. El menú de pruebas de las opciones de desarrollador permite forzar estados sin esperar los 20 minutos.

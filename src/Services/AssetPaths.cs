@@ -22,12 +22,13 @@ public static class AssetPaths
         @"character\disabled", @"character\idle", @"character\awaken", @"character\paused",
         @"character\warning", @"character\serious_warning", @"character\blocked_1",
         @"character\blocked_2", @"character\sleeping", @"character\waiting",
-        @"voices\awaken\from_idle", @"voices\awaken\from_disabled", @"voices\awaken\from_blocked1",
-        @"voices\awaken\from_waiting",
-        @"voices\warning\step_1", @"voices\warning\step_2", @"voices\warning\step_3",
-        @"voices\serious_warning\step_1", @"voices\serious_warning\step_2", @"voices\serious_warning\step_3",
-        @"voices\blocked_1\enter", @"voices\blocked_1\1_min", @"voices\blocked_1\5_min",
-        @"voices\blocked_2\enter", @"voices\blocked_2\1_min", @"voices\blocked_2\5_min"
+        @"audio\awaken\from_idle", @"audio\awaken\from_disabled", @"audio\awaken\from_blocked1",
+        @"audio\awaken\from_waiting",
+        @"audio\warning\step_1", @"audio\warning\step_2", @"audio\warning\step_3",
+        @"audio\serious_warning\step_1", @"audio\serious_warning\step_2", @"audio\serious_warning\step_3",
+        @"audio\blocked_1\enter", @"audio\blocked_1\1_min", @"audio\blocked_1\5_min",
+        @"audio\blocked_2\enter", @"audio\blocked_2\1_min", @"audio\blocked_2\5_min",
+        @"audio\paused\pause", @"audio\paused\resume", @"audio\disabled\disable"
     ];
 
     /// <summary>

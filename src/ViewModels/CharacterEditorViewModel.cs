@@ -43,30 +43,34 @@ public class CharacterEditorViewModel : ObservableBase
         // Las carpetas coinciden con las que lee VoiceService
         SoundEventOption[] Steps(string folder) =>
         [
-            new("event.start", $@"voices\{folder}\step_1"),
-            new("event.left_40", $@"voices\{folder}\step_2"),
-            new("event.left_20", $@"voices\{folder}\step_3")
+            new("event.start", $@"audio\{folder}\step_1"),
+            new("event.left_40", $@"audio\{folder}\step_2"),
+            new("event.left_20", $@"audio\{folder}\step_3")
         ];
 
         SoundEventOption[] Blocked(string folder) =>
         [
-            new("event.on_block", $@"voices\{folder}\enter"),
-            new("event.after_1", $@"voices\{folder}\1_min"),
-            new("event.after_5", $@"voices\{folder}\5_min")
+            new("event.on_block", $@"audio\{folder}\enter"),
+            new("event.after_1", $@"audio\{folder}\1_min"),
+            new("event.after_5", $@"audio\{folder}\5_min")
         ];
 
         States =
         [
-            new(BreaksyState.Disabled, []),
+            new(BreaksyState.Disabled, [new("event.on_disable", @"audio\disabled\disable")]),
             new(BreaksyState.Idle, []),
             new(BreaksyState.Awaken,
             [
-                new("event.from_idle", @"voices\awaken\from_idle"),
-                new("event.from_disabled", @"voices\awaken\from_disabled"),
-                new("event.from_extension", @"voices\awaken\from_blocked1"),
-                new("event.from_rest", @"voices\awaken\from_waiting")
+                new("event.from_idle", @"audio\awaken\from_idle"),
+                new("event.from_disabled", @"audio\awaken\from_disabled"),
+                new("event.from_extension", @"audio\awaken\from_blocked1"),
+                new("event.from_rest", @"audio\awaken\from_waiting")
             ]),
-            new(BreaksyState.Paused, []),
+            new(BreaksyState.Paused,
+            [
+                new("event.on_pause", @"audio\paused\pause"),
+                new("event.on_resume", @"audio\paused\resume")
+            ]),
             new(BreaksyState.Warning, Steps("warning")),
             new(BreaksyState.SeriousWarning, Steps("serious_warning")),
             new(BreaksyState.Blocked1, Blocked("blocked_1")),

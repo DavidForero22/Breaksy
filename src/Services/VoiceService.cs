@@ -6,7 +6,9 @@ using Breaksy.Models;
 namespace Breaksy.Services;
 
 /// <summary>
-/// Gestiona la reproducción de audios en la carpeta assets/voices.
+/// Gestiona la reproducción de audios en la carpeta assets/audio.
+/// Las voces (carpeta audio/ de cada estado) se silencian con "Reproducir voces"; los sonidos
+/// (alarma, pausa, reanudar, desactivar, vuelta desde desactivado) con "Reproducir sonidos".
 /// Reacciona a los eventos de la máquina de estados y a los ticks de tiempo.
 /// </summary>
 public class VoiceService : IDisposable
@@ -14,6 +16,7 @@ public class VoiceService : IDisposable
     private readonly BreaksyStateMachine _stateMachine;
     private readonly SettingsService _settings;
     private readonly MediaPlayer _mediaPlayer;
+    private readonly MediaPlayer _soundPlayer;
     private readonly DispatcherTimer _blockedTimer;
     private readonly Random _random;
     private readonly MediaPlayer _alarmPlayer;
@@ -26,6 +29,7 @@ public class VoiceService : IDisposable
         _stateMachine = stateMachine;
         _settings = settings;
         _mediaPlayer = new MediaPlayer();
+        _soundPlayer = new MediaPlayer();
         _random = new Random();
         _alarmPlayer = new MediaPlayer();
         _alarmPlayer.MediaEnded += OnAlarmEnded;
@@ -56,6 +60,13 @@ public class VoiceService : IDisposable
             _blockedTimer.Stop();
         }
 
+        // Sonidos de pausa, reanudación y desactivación
+        if (e.NewState == BreaksyState.Paused) PlayRandomSound(@"paused\pause");
+        if (e.OldState == BreaksyState.Paused
+            && e.NewState is BreaksyState.Awaken or BreaksyState.Warning or BreaksyState.SeriousWarning)
+            PlayRandomSound(@"paused\resume");
+        if (e.NewState == BreaksyState.Disabled) PlayRandomSound(@"disabled\disable");
+
         // Disparar audios de transición
         switch (e.NewState)
         {
@@ -82,7 +93,7 @@ public class VoiceService : IDisposable
         switch (oldState)
         {
             case BreaksyState.Idle: PlayRandomVoice(@"awaken\from_idle"); break;
-            case BreaksyState.Disabled: PlayRandomVoice(@"awaken\from_disabled"); break;
+            case BreaksyState.Disabled: PlayRandomSound(@"awaken\from_disabled"); break;
             case BreaksyState.Blocked1: PlayRandomVoice(@"awaken\from_blocked1"); break;
             case BreaksyState.Waiting: PlayRandomVoice(@"awaken\from_waiting"); break;
         }
@@ -135,12 +146,12 @@ public class VoiceService : IDisposable
     {
         if (_settings.IsSoundMuted) return;
 
-        var files = AssetPaths.FindFiles(Path.Combine("voices", "system"), "*.*",
+        var files = AssetPaths.FindFiles(Path.Combine("audio", "system"), "*.*",
             f => Path.GetFileName(f).Equals("wakeup_alarm.wav", StringComparison.OrdinalIgnoreCase));
 
         if (files.Length == 0)
         {
-            LogService.Log("[VoiceService] OMITIDO: No se encontró 'wakeup_alarm.wav' en assets/voices/system/.");
+            LogService.Log("[VoiceService] OMITIDO: No se encontró 'wakeup_alarm.wav' en assets/audio/system/.");
             return;
         }
 
@@ -166,12 +177,29 @@ public class VoiceService : IDisposable
         _alarmPlayer.Play();
     }
 
+    // Sonido (no es una voz): respeta "Reproducir sonidos" y, si no hay archivos, no suena nada
+    private void PlayRandomSound(string subCategoryPath)
+    {
+        if (_settings.IsSoundMuted) return;
+
+        var files = AssetPaths.FindFiles(Path.Combine("audio", subCategoryPath), "*.*",
+            f => f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                 f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase));
+        if (files.Length == 0) return;
+
+        var targetFile = files.Length == 1 ? files[0] : files[_random.Next(files.Length)];
+        LogService.Log($"[VoiceService] SONIDO -> {Path.GetFileName(targetFile)}");
+
+        _soundPlayer.Open(new Uri(targetFile));
+        _soundPlayer.Play();
+    }
+
     private void PlayRandomVoice(string subCategoryPath)
     {
         if (_settings.IsMuted) return;
 
         // Intentar buscar en la carpeta específica del estado (primero la del usuario, luego la de serie)
-        var files = AssetPaths.FindFiles(Path.Combine("voices", subCategoryPath), "*.*",
+        var files = AssetPaths.FindFiles(Path.Combine("audio", subCategoryPath), "*.*",
             f => f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
                  f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase));
 
@@ -180,14 +208,14 @@ public class VoiceService : IDisposable
         {
             LogService.Log($"[VoiceService] Faltan audios en -> {subCategoryPath}. Buscando fallback.mp3...");
 
-            files = AssetPaths.FindFiles(Path.Combine("voices", "system"), "*.*",
+            files = AssetPaths.FindFiles(Path.Combine("audio", "system"), "*.*",
                 f => f.EndsWith("fallback.mp3", StringComparison.OrdinalIgnoreCase) ||
                      f.EndsWith("fallback.wav", StringComparison.OrdinalIgnoreCase));
 
             // Si no se encuentra el archivo de fallback específico, abortar
             if (files.Length == 0)
             {
-                LogService.Log("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/voices/system/."); return;
+                LogService.Log("[VoiceService] OMITIDO: No se encontró 'fallback.mp3' en assets/audio/system/."); return;
             }
         }
 
@@ -207,6 +235,7 @@ public class VoiceService : IDisposable
         _blockedTimer.Tick -= OnBlockedTimerTick;
         _blockedTimer.Stop();
         _mediaPlayer.Close();
+        _soundPlayer.Close();
         _alarmPlayer.MediaEnded -= OnAlarmEnded;
         _alarmPlayer.Close();
     }
